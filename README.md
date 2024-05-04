@@ -6,6 +6,17 @@ NFC sample tracking using NTAG 21X NFC tags
 - https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf (https://web.archive.org/web/20240404075504/https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)
 - https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf (https://web.archive.org/web/20240404041534/https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf)
 
+## Install
+### Native Raspberry Pi
+```bash
+sudo apt update && sudo apt upgrade
+sudo apt install git ufw python3-pip
+sudo raspi-config # enable spi
+git clone https://github.com/lucasmchoi/nfc-sample-tracker.git
+pip install -r requirements.txt
+
+```
+
 ## Requirements
 
 - [Python](https://www.python.org) (PSF LICENSE AGREEMENT)
@@ -66,6 +77,8 @@ Python - PSF LICENSE AGREEMENT FOR PYTHON
    to be bound by the terms and conditions of this License Agreement.
 ```
 
+
+
 pi-rc522 - MIT
 
 ```
@@ -92,6 +105,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ```
+
+
 
 pyndef - Apache License 2.0
 
