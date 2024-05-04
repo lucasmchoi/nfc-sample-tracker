@@ -6,7 +6,7 @@ Created on Thursday, 2024-05-02 23:39
 """
 from typing import Type, Union
 from pirc522 import RFID
-from pyndef import NdefMessage
+import ndef
 
 
 NTAG_NON_USER_PAGES = 9
@@ -14,6 +14,10 @@ NTAG_PRE_MEMORY = 4
 NTAG_TRAILING_MEMORY = 5
 NTAG_STRUCTURE_PAGES = {'serial number': [0, 2], 'static lock bytes': [2, 3], 'capability container': [3, 4], 'user memory': [4, -5], 'configuration pages': [-5, None]}
 NTAG_STRUCTURE_BYTES = {'serial number': [0, 8], 'static lock bytes': [8, 12], 'capability container': [12, 16], 'user memory': [16, -20], 'configuration pages': [-20, None]}
+TLV_NULL = 0x00
+TLV_NDEF_MESSAGE = 0x03
+TLV_PROPRIETARY = 0xFD
+TLV_TERMINATOR = 0xFE
 
 
 def begin_tag(reader: Type[RFID]) -> bool:
@@ -96,7 +100,7 @@ def read_ntag_page(reader: Type[RFID], page: int) -> tuple[bool, list[int]]:
     return error, block[0:4]
 
 
-def read_ntag_complete(reader: Type[RFID], printt: bool = False) -> tuple[list[bool], Union[None, tuple[list[int]]]]:
+def read_ntag_complete(reader: Type[RFID], printt: bool = False) -> tuple[bool, Union[None, tuple[list[int]]]]:
     """read complete NTAG21X
 
     Args:
@@ -104,7 +108,7 @@ def read_ntag_complete(reader: Type[RFID], printt: bool = False) -> tuple[list[b
         printt (bool, optional): bool to print data to terminal. Defaults to False.
 
     Returns:
-        tuple[list[bool], Union[None, tuple[list[int]]]]: bool to indicate error, list with bytes of complete NTAG21X
+        tuple[bool, Union[None, tuple[list[int]]]]: bool to indicate error, list with bytes of complete NTAG21X
     """
     error = []
     read_error, memory_pages = get_ntag_memory(reader)
@@ -139,10 +143,10 @@ def read_ntag_complete(reader: Type[RFID], printt: bool = False) -> tuple[list[b
                      data[NTAG_STRUCTURE_BYTES['user memory'][0]:NTAG_STRUCTURE_BYTES['user memory'][1]],
                      data[NTAG_STRUCTURE_BYTES['configuration pages'][0]:NTAG_STRUCTURE_BYTES['configuration pages'][1]])
         
-    return error, data_dump
+    return any(error), data_dump
 
 
-def read_ntag_container(reader: Type[RFID], container: str = 'user memory') -> tuple[Union[bool, list[bool]], list[int]]:
+def read_ntag_container(reader: Type[RFID], container: str = 'user memory') -> tuple[bool, list[int]]:
     """read specific container of NTAG21X
 
     Args:
@@ -150,7 +154,7 @@ def read_ntag_container(reader: Type[RFID], container: str = 'user memory') -> t
         container (str, optional): NTAG21X container to be read. Defaults to 'user memory'.
 
     Returns:
-        tuple[Union[bool, list[bool]], list[int]]: bool to indicate error, list with bytes of complete NTAG21X
+        tuple[bool, list[int]]: bool to indicate error, list with bytes of complete NTAG21X
     """
     if container not in NTAG_STRUCTURE_PAGES.keys():
         return True, []
@@ -176,10 +180,10 @@ def read_ntag_container(reader: Type[RFID], container: str = 'user memory') -> t
         error.append(page_error)
         data.extend(page_data)
 
-    return error, data
+    return any(error), data
 
 
-def write_ntag_page(reader: Type[RFID], message: list = [0, 0, 0, 0], page: int = NTAG_STRUCTURE_PAGES['user memory'][0]) -> list[bool]:
+def write_ntag_page(reader: Type[RFID], message: list = [0, 0, 0, 0], page: int = NTAG_STRUCTURE_PAGES['user memory'][0]) -> bool:
     """write specific NTAG21X page
 
     Args:
@@ -188,7 +192,7 @@ def write_ntag_page(reader: Type[RFID], message: list = [0, 0, 0, 0], page: int 
         page (int, optional): page to be written. Defaults to 4.
 
     Returns:
-        list[bool]: bool to indicate error
+       bool: bool to indicate error
     """
     error = []
 
@@ -198,10 +202,10 @@ def write_ntag_page(reader: Type[RFID], message: list = [0, 0, 0, 0], page: int 
         return True
     error.append(reader.write(page, message+[0]*12))
 
-    return error
+    return any(error)
 
 
-def write_ntag_message(reader: Type[RFID], message: list = [0, 0, 0, 0], page: int = NTAG_STRUCTURE_PAGES['user memory'][0]) -> list[bool]:
+def write_ntag_message(reader: Type[RFID], message: list = [0, 0, 0, 0], page: int = NTAG_STRUCTURE_PAGES['user memory'][0]) -> bool:
     """write message to NTAG21X beginning with specific page
 
     Args:
@@ -210,7 +214,7 @@ def write_ntag_message(reader: Type[RFID], message: list = [0, 0, 0, 0], page: i
         page (int, optional): page to start writing. Defaults to 4.
 
     Returns:
-        list[bool]: bool to indicate error
+        bool: bool to indicate error
     """
     error = []
     read_error, memory_pages = get_ntag_memory(reader)
@@ -225,12 +229,12 @@ def write_ntag_message(reader: Type[RFID], message: list = [0, 0, 0, 0], page: i
             message.append(0)
         
         for i in range(len(message) // 4):
-            error.append(*write_ntag_page(reader, message[4*i:4*i+4], page + i))
+            error.append(write_ntag_page(reader, message[4*i:4*i+4], page + i))
 
-    return error
+    return any(error)
 
 
-def clear_ntag_usermemory(reader: Type[RFID]) -> list[bool]:
+def clear_ntag_usermemory(reader: Type[RFID]) -> bool:
     """clear complete user memory of NTAG21X
 
     Args:
@@ -247,4 +251,88 @@ def clear_ntag_usermemory(reader: Type[RFID]) -> list[bool]:
         for page in range(NTAG_PRE_MEMORY, memory_pages - NTAG_TRAILING_MEMORY):
             error.append(reader.write(page, [0]*16))
 
-    return error
+    return any(error)
+
+
+def create_ndef_tlv_wrap(ndef_message: list[int]) -> list[int]:
+    """wrap ndef message in tvl block
+
+    Args:
+        ndef_message (list): list of message to be written
+
+    Returns:
+        list[int]: list of message bytes
+    """
+    message = []
+
+    message.append(TLV_NDEF_MESSAGE)
+    message.append(len(ndef_message))
+    message.extend(ndef_message)
+    message.append(TLV_TERMINATOR)
+    
+    return message
+
+
+def create_ndef_message(records: list[Union[ndef.uri.UriRecord, ndef.text.TextRecord]]) -> list[int]:
+    """create TLV wrapped ndef message from supplied ndef records
+    
+    Args:
+        records (list[Union[ndef.uri.UriRecord, ndef.text.TextRecord]]): ndef records to be joined and wrapped
+
+    Returns:
+        list[int]: list of message bytes
+    """
+    
+    msg = b''.join((ndef.message_encoder(records)))
+    wrapped_message = create_ndef_tlv_wrap(list(msg))
+
+    return wrapped_message
+
+
+def find_and_parse_ndef_message(userdata: list[int]) -> tuple[bool, list[list], list[list[Union[None, str]]]]:
+    """find ndef messages in provided userdata
+
+    Args:
+        userdata (list[int]): userdata list returned from read_ntag_container()
+
+    Returns:
+        tuple[bool, list[list], list[list[Union[None, str]]]]: bool to indicate error, list of lists of ndef message bytes, list of parsed ndef message strings or None
+    """
+    ndef_bytes_messages = []
+    ndef_messages = []
+    starts = []
+    stops = []
+    errors = [False]
+    
+    for index, value in enumerate(userdata):
+        if value == TLV_NDEF_MESSAGE:
+            starts.append(index)
+            minpos = index + 4
+        elif value == TLV_TERMINATOR and index > minpos:
+            stops.append(index)
+
+    npairs = min(len(starts), len(stops))
+
+    if npairs == 0:
+        return True, ndef_bytes_messages
+    
+    for i in range(npairs):
+        ndef_bytes_messages.append(userdata[starts[i]+2:stops[i]])
+    
+    for message in ndef_bytes_messages:
+        try:
+            rpayloads = []
+            for record in ndef.message_decoder(bytes(message)):
+                match record.type:
+                    case 'urn:nfc:wkt:U':
+                        rpayloads.append(record.iri)
+                    case 'urn:nfc:wkt:T':
+                        rpayloads.append(record.text)
+                    case _:
+                        rpayloads.append(False)
+
+            ndef_messages.append(rpayloads)
+        except:
+            errors.append(True)
+
+    return any(errors), ndef_bytes_messages, ndef_messages
