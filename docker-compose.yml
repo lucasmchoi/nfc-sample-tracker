@@ -1,0 +1,14 @@
+services:
+  nfc:
+    build: .
+    volumes:
+      - /nfc:/nfc-sample-tracker
+      - /lib/modules:/lib/modules
+      - /sys:/sys
+      - /dev:/dev
+      - /run/udev:/run/udev:ro
+    container_name: nfc-sample-tracker
+    privileged: true      
+    devices:
+      - /dev/spidev0.0
+      - /dev/spidev0.1
