@@ -4,13 +4,20 @@ Created on Saturday, 2024-05-04 12:53
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
 """
-from picamera2 import Picamera2
 import time
-import io
+from io import BytesIO
+from typing import Type
+from PIL import Image
+from picamera2 import Picamera2
 
 
-def capture_image():
-    bytes_image = io.BytesIO()
+def capture_image() -> tuple[Type[Image], Type[BytesIO]]:
+    """capture image using picamera2 and return Pillow image and bytes
+
+    Returns:
+        _type_: _description_
+    """
+    bytes_image = BytesIO()
 
     picam2 = Picamera2()
 

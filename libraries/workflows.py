@@ -4,6 +4,8 @@ Created on Monday, 2024-05-06 13:28
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
 """
+from typing import Type
+from pirc522 import RFID
 from libraries.nfcreader import *
 from libraries.camera import *
 import uuid
