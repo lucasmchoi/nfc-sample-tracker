@@ -8,11 +8,10 @@ from pymongo import MongoClient, IndexModel, ASCENDING, DESCENDING
 import urllib.parse
 import hashlib
 import uuid
-import pprint
 import gridfs
 import os
-from datetime import datetime, timezone, timedelta
 import secrets
+from datetime import datetime, timezone, timedelta
 
 
 # TODO add schema validation
@@ -138,7 +137,6 @@ if setup_mongodb:
 
         example_documentid = gfs.put(b"test gfs data")
 
-        print(example_documentid)
         example_userid = (
             nfc_example_db["users"]
             .insert_one(
