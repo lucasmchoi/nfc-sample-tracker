@@ -20,14 +20,14 @@ TLV_PROPRIETARY = 0xFD
 TLV_TERMINATOR = 0xFE
 
 
-def begin_tag(reader: Type[RFID]) -> bool:
+def begin_tag(reader: Type[RFID]) -> tuple[bool, str]:
     """run anticollision and tag selection before reading or writing
 
     Args:
         reader (Type[RFID]): RFID class from pirc522
 
     Returns:
-        bool: bool to indicate error
+        tuple[bool, str]: bool to indicate error, uid of tag
     """
     (error, _) = reader.request()
     if not error:
@@ -36,13 +36,13 @@ def begin_tag(reader: Type[RFID]) -> bool:
             error = reader.select_tag(uid)
             if not error:
                 reader.read(0)
-                return error
+                return error, uid
             else:
-                return error
+                return error, uid
         else:
-            return error
+            return error, None
     else:
-        return error
+        return error, None
 
 
 def stop_tag(reader: Type[RFID]) -> bool:
