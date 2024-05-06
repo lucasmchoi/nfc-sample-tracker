@@ -220,3 +220,5 @@ if setup_mongodb:
                 "images": [example_documentid],
             }
         )
+
+    client.close()
