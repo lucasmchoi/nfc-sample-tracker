@@ -1,14 +1,38 @@
 services:
+  mongo:
+    container_name: mongodb
+    image: mongo:7.0
+    volumes:
+      - ./database:/data/db
+    # ports:
+    #   - 127.0.0.1:27017:27017
+    networks:
+      - database
+    env_file:
+      - path: ./env_files/mongodb.env
+        required: true
+
   nfc:
+    container_name: nfc-sample-tracker
     build: .
+    # image: ghcr.io/lucasmchoi/nfc-sample-tracker:latest
     volumes:
       - /nfc:/nfc-sample-tracker
       - /lib/modules:/lib/modules
       - /sys:/sys
       - /dev:/dev
       - /run/udev:/run/udev:ro
-    container_name: nfc-sample-tracker
     privileged: true      
     devices:
       - /dev/spidev0.0
       - /dev/spidev0.1
+    depends_on:
+      - mongo
+    networks:
+      - database
+    env_file:
+      - path: ./env_files/nfc.env
+        required: true
+
+networks:
+  database:
