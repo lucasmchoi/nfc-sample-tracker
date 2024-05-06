@@ -1,6 +1,8 @@
 # nfc-sample-tracker
 NFC sample tracking using NTAG 21X NFC tags
 
+![Pylint](https://github.com/lucasmchoi/nfc-sample-tracker/.github/workflows/pylint.yml/badge.svg)
+
 ## Datasheets
 
 - https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf (https://web.archive.org/web/20240404075504/https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)

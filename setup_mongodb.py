@@ -4,29 +4,29 @@ Created on Sunday, 2024-05-05 19:51
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
 """
-from pymongo import MongoClient, IndexModel, ASCENDING, DESCENDING
-import urllib.parse
-import hashlib
-import uuid
-import gridfs
 import os
 import secrets
+import hashlib
+import uuid
+import urllib.parse
 from datetime import datetime, timezone, timedelta
+from pymongo import MongoClient, IndexModel, ASCENDING, DESCENDING
+import gridfs
 
 
 # TODO add schema validation
 
 uid_salt = os.getenv("USERS_UID_SALT", "horrible salt")
-setup_mongodb = bool(os.getenv("MONGO_SETUP", False))
-setup_example_mongodb = bool(os.getenv("MONGO_SETUP_EXAMPLE", False))
+setup_mongodb = bool(os.getenv("MONGO_SETUP", "False"))
+setup_example_mongodb = bool(os.getenv("MONGO_SETUP_EXAMPLE", "False"))
 mongo_host = os.getenv("MONGO_HOST", "localhost")
-mongo_port = os.getenv("MONGO_PORT", 27017)
+mongo_port = os.getenv("MONGO_PORT", "27017")
 admin_username = urllib.parse.quote_plus(os.getenv("MONGO_ADMIN_USER", "admin"))
 admin_password = urllib.parse.quote_plus(os.getenv("MONGO_ADMIN_PASSWORD", "None"))
 hw_username = os.getenv("MONGO_HW_USER", "nfc-hardware-user")
-hw_password = os.getenv("MONGO_HW_PASSWORD", None)
+hw_password = os.getenv("MONGO_HW_PASSWORD")
 api_username = os.getenv("MONGO_API_USER", "nfc-api-user")
-api_password = os.getenv("MONGO_API_PASSWORD", None)
+api_password = os.getenv("MONGO_API_PASSWORD")
 
 
 new_indexes = {
@@ -58,14 +58,13 @@ def create_necessary_indexes(ndb, nindexes):
 
 
 if setup_mongodb:
-    if hw_password == None:
+    if hw_password is None:
         hw_password = secrets.token_urlsafe(64)
-    if api_password == None:
+    if api_password is None:
         api_password = secrets.token_urlsafe(64)
 
     client = MongoClient(
-        "mongodb://%s:%s@%s:%s/"
-        % (admin_username, admin_password, mongo_host, mongo_port)
+        f"mongodb://{hw_username}:{hw_password}@{mongo_host}:{mongo_port}/"
     )
 
     nfc_tracking_db = client["nfc-tracking"]
@@ -96,15 +95,9 @@ if setup_mongodb:
     os.environ["MONGO_API_PASSWORD"] = api_password
 
     print(
-        "Mongodb hardware user: {}\nMongodb hardware password: {}\n".format(
-            hw_username, hw_password
-        )
+        f"Mongodb hardware user: {hw_username}\nMongodb hardware password: {hw_password}\n"
     )
-    print(
-        "Mongodb API user: {}\nMongodb API password: {}\n".format(
-            api_username, api_password
-        )
-    )
+    print(f"Mongodb API user: {api_username}\nMongodb API password: {api_password}\n")
 
     del (
         admin_username,
@@ -124,20 +117,20 @@ if setup_mongodb:
         gfs = gridfs.GridFS(nfc_example_db)
 
         # random_id on creation of new user to be written onto nfctag
-        example_random_id = uuid.uuid4().hex
-        example_s_userid = example_random_id + uid_salt
+        EXAMPLE_RANDOM_ID = uuid.uuid4().hex
+        example_s_userid = EXAMPLE_RANDOM_ID + uid_salt
         example_b_userid = example_s_userid.encode("utf-8")
 
-        example_userid = None
-        example_locationid = None
-        example_samplenumber = 1
-        example_platenumber = 1
-        example_documentid = None
+        EXAMPLE_USERID = None
+        EXAMPLE_LOCATIONID = None
+        EXAMPLE_SAMPLENUMBER = 1
+        EXAMPLE_PLATENUMBER = 1
+        EXAMPLE_DOCUMENTID = None
         example_transfertime = datetime.now(tz=timezone.utc)
 
-        example_documentid = gfs.put(b"test gfs data")
+        EXAMPLE_DOCUMENTID = gfs.put(b"test gfs data")
 
-        example_userid = (
+        EXAMPLE_USERID = (
             nfc_example_db["users"]
             .insert_one(
                 {
@@ -148,7 +141,7 @@ if setup_mongodb:
             )
             .inserted_id
         )
-        example_locationid = (
+        EXAMPLE_LOCATIONID = (
             nfc_example_db["locations"]
             .insert_one(
                 {
@@ -169,8 +162,8 @@ if setup_mongodb:
 
         nfc_example_db["samples"].insert_one(
             {
-                "sample-number": example_samplenumber,
-                "responsible-user": example_userid,
+                "sample-number": EXAMPLE_SAMPLENUMBER,
+                "responsible-user": EXAMPLE_USERID,
                 "information": {
                     "material": "GaN",
                     "orientation": "0001",
@@ -180,44 +173,44 @@ if setup_mongodb:
                 "locations": [
                     {
                         "date": datetime.now(tz=timezone.utc) - timedelta(days=5),
-                        "location": example_locationid,
+                        "location": EXAMPLE_LOCATIONID,
                         "plate-number": None,
-                        "user": example_userid,
+                        "user": EXAMPLE_USERID,
                     },
                     {
                         "date": example_transfertime,
-                        "location": example_locationid,
-                        "plate-number": example_platenumber,
-                        "user": example_userid,
+                        "location": EXAMPLE_LOCATIONID,
+                        "plate-number": EXAMPLE_PLATENUMBER,
+                        "user": EXAMPLE_USERID,
                     },
                 ],
-                "images": [example_documentid],
-                "files": [example_documentid],
+                "images": [EXAMPLE_DOCUMENTID],
+                "files": [EXAMPLE_DOCUMENTID],
             }
         )
         nfc_example_db["plates"].insert_one(
             {
-                "plate-number": example_platenumber,
+                "plate-number": EXAMPLE_PLATENUMBER,
                 "modifications": [
                     {
                         "date": datetime.now(tz=timezone.utc) - timedelta(days=2),
-                        "user": example_userid,
+                        "user": EXAMPLE_USERID,
                         "samples": [],
                     },
                     {
                         "date": example_transfertime,
-                        "user": example_userid,
-                        "samples": [example_samplenumber],
+                        "user": EXAMPLE_USERID,
+                        "samples": [EXAMPLE_SAMPLENUMBER],
                     },
                 ],
                 "locations": [
                     {
                         "date": datetime.now(tz=timezone.utc) - timedelta(days=2),
-                        "user": example_userid,
-                        "location": example_locationid,
+                        "user": EXAMPLE_USERID,
+                        "location": EXAMPLE_LOCATIONID,
                     }
                 ],
-                "images": [example_documentid],
+                "images": [EXAMPLE_DOCUMENTID],
             }
         )
 
