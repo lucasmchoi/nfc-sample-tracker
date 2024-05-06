@@ -254,6 +254,26 @@ def clear_ntag_usermemory(reader: Type[RFID]) -> bool:
     return any(error)
 
 
+def check_ntag_usermemeory_beginning(reader: Type[RFID]) -> tuple[bool, bool]:
+    """_summary_
+
+    Args:
+        reader (Type[RFID]): RFID class from pirc522
+
+    Returns:
+        tuple[bool, bool]: bool to indicate error, bool to indicate empty
+    """
+    empty = True
+    expected_empty = [[0x01, 0x03, 0x0], [0x3, 0x0], [0xA0, 0xFE, 0x0], [0x0C, 0x0]]
+    error, data = read_ntag_page(reader, NTAG_STRUCTURE_PAGES['user memory'][0])
+    if not error:
+        for i in range(4):
+            if data[i] not in expected_empty[i]:
+                empty = False
+    
+    return error, empty
+
+
 def create_ndef_tlv_wrap(ndef_message: list[int]) -> list[int]:
     """wrap ndef message in tvl block
 
