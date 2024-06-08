@@ -14,7 +14,7 @@ from pymongo import MongoClient, IndexModel, ASCENDING, DESCENDING
 import gridfs
 
 
-# TODO add schema validation
+# add schema validation
 
 uid_salt = os.getenv("USERS_UID_SALT", "horrible salt")
 setup_mongodb = bool(os.getenv("MONGO_SETUP", "False"))
@@ -64,7 +64,7 @@ if setup_mongodb:
         api_password = secrets.token_urlsafe(64)
 
     client = MongoClient(
-        f"mongodb://{hw_username}:{hw_password}@{mongo_host}:{mongo_port}/"
+        f"mongodb://{admin_username}:{admin_password}@{mongo_host}:{mongo_port}/"
     )
 
     nfc_tracking_db = client["nfc-tracking"]
