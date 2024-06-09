@@ -1,6 +1,8 @@
 name: Pylint
 
-on: [push]
+on: 
+  push:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -8,5 +10,8 @@ jobs:
     steps:
     - uses: Silleellie/pylint-github-action@f5341ef210a203c2c7bbfe5440c03a06b9328866 # v2
       with:
-        lint-path: *
+        lint-path: |
+          libraries
+          main_hardware.py
+          setup_mongodb.py
         python-version: 3.11
