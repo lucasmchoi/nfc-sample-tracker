@@ -1,7 +1,7 @@
 # nfc-sample-tracker
 NFC sample tracking using NTAG 21X NFC tags
 
-![Pylint](https://github.com/lucasmchoi/nfc-sample-tracker/.github/workflows/pylint.yml/badge.svg)
+![pylint]()
 
 ## Datasheets
 
