@@ -27,6 +27,8 @@ hw_username = os.getenv("MONGO_HW_USER", "nfc-hardware-user")
 hw_password = os.getenv("MONGO_HW_PASSWORD")
 api_username = os.getenv("MONGO_API_USER", "nfc-api-user")
 api_password = os.getenv("MONGO_API_PASSWORD")
+gui_username = os.getenv("MONGO_GUI_USER", "nfc-gui-user")
+gui_password = os.getenv("MONGO_GUI_PASSWORD")
 
 
 new_indexes = {
@@ -62,6 +64,8 @@ if setup_mongodb:
         hw_password = secrets.token_urlsafe(64)
     if api_password is None:
         api_password = secrets.token_urlsafe(64)
+    if gui_password is None:
+        gui_password = secrets.token_urlsafe(64)
 
     client = MongoClient(
         f"mongodb://{admin_username}:{admin_password}@{mongo_host}:{mongo_port}/"
@@ -94,10 +98,23 @@ if setup_mongodb:
     os.environ["MONGO_API_USER"] = api_username
     os.environ["MONGO_API_PASSWORD"] = api_password
 
+    nfc_tracking_db.command(
+        "createUser",
+        gui_username,
+        pwd=gui_password,
+        roles=[
+            {"role": "readWrite", "db": "nfc-tracking"},
+        ],
+    )
+
+    os.environ["MONGO_GUI_USER"] = gui_username
+    os.environ["MONGO_GUI_PASSWORD"] = gui_password
+
     print(
         f"Mongodb hardware user: {hw_username}\nMongodb hardware password: {hw_password}\n"
     )
     print(f"Mongodb API user: {api_username}\nMongodb API password: {api_password}\n")
+    print(f"Mongodb GUI user: {gui_username}\nMongodb GUI password: {gui_password}\n")
 
     del (
         admin_username,
@@ -106,6 +123,8 @@ if setup_mongodb:
         hw_password,
         api_username,
         api_password,
+        gui_username,
+        gui_password,
     )
 
     create_necessary_indexes(nfc_tracking_db, new_indexes)
@@ -113,6 +132,33 @@ if setup_mongodb:
     if setup_example_mongodb:
         nfc_example_db = client["nfc-example"]
         create_necessary_indexes(nfc_example_db, new_indexes)
+
+        nfc_example_db.command(
+            "createUser",
+            os.environ["MONGO_HW_USER"],
+            pwd=os.environ["MONGO_HW_PASSWORD"],
+            roles=[
+                {"role": "readWrite", "db": "nfc-example"},
+            ],
+        )
+
+        nfc_example_db.command(
+            "createUser",
+            os.environ["MONGO_API_USER"],
+            pwd=os.environ["MONGO_API_PASSWORD"],
+            roles=[
+                {"role": "readWrite", "db": "nfc-example"},
+            ],
+        )
+
+        nfc_example_db.command(
+            "createUser",
+            os.environ["MONGO_GUI_USER"],
+            pwd=os.environ["MONGO_GUI_PASSWORD"],
+            roles=[
+                {"role": "readWrite", "db": "nfc-example"},
+            ],
+        )
 
         gfs = gridfs.GridFS(nfc_example_db)
 
