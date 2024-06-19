@@ -80,19 +80,45 @@ def get_location(db, oid):
                     dash_table.DataTable(
                         data=df.to_dict("records"),
                         columns=[
-                            {"name": "sample number", "id": "sample-number"},
-                            {"name": "material", "id": "material"},
-                            {"name": "orientation", "id": "orientation"},
-                            {"name": "doping", "id": "doping"},
-                            {"name": "growth", "id": "growth"},
+                            {
+                                "name": "sample number",
+                                "id": "sample-number",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "material",
+                                "id": "material",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "orientation",
+                                "id": "orientation",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "doping",
+                                "id": "doping",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "growth",
+                                "id": "growth",
+                                "presentation": "markdown",
+                            },
                         ],
                         style_cell={
-                            "whiteSpace": "pre-line",
+                            "whiteSpace": "normal",
                             "height": "auto",
                             "maxWidth": 0,
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
+                            "textAlign": "center",
                         },
+                        css=[dict(selector="p", rule="margin: 0; text-align: center")],
+                        markdown_options={"link_target": "_self"},
+                        filter_action="native",
+                        sort_action="native",
+                        sort_mode="multi",
                     ),
                 ]
             ),

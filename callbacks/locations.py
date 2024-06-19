@@ -16,11 +16,11 @@ def get_locations(db):
         "address": {
             "$concat": [
                 "$location.address.street",
-                "\n",
+                ", ",
                 "$location.address.zip",
-                "\n",
+                " ",
                 "$location.address.city",
-                "\n",
+                ", ",
                 "$location.address.country",
             ]
         },
@@ -60,31 +60,55 @@ def get_locations(db):
         entry["samples at location"] = "[{}](/locations/{})".format(
             samples_at_location, entry["_id"]
         )
-        entry.pop("_id", None)
+        entry["_id"] = str(entry["_id"])
         ldata.append(entry)
     df = pd.DataFrame(ldata)
 
     return html.Div(
         [
-            dash_table.DataTable(
-                data=df.to_dict("records"),
-                columns=[
-                    {"name": "name", "id": "name"},
-                    {"name": "room", "id": "room"},
-                    {"name": "address", "id": "address"},
-                    {
-                        "name": "samples at location",
-                        "id": "samples at location",
-                        "presentation": "markdown",
-                    },
-                ],
-                style_cell={
-                    "whiteSpace": "pre-line",
-                    "height": "auto",
-                    "maxWidth": 0,
-                    "overflow": "hidden",
-                    "textOverflow": "ellipsis",
-                },
+            html.Div([html.H2("Locations")]),
+            html.Div(
+                [
+                    dash_table.DataTable(
+                        data=df.to_dict("records"),
+                        columns=[
+                            {
+                                "name": "name",
+                                "id": "name",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "room",
+                                "id": "room",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "address",
+                                "id": "address",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "samples at location",
+                                "id": "samples at location",
+                                "presentation": "markdown",
+                            },
+                            {"name": "_id", "id": "_id", "presentation": "markdown"},
+                        ],
+                        style_cell={
+                            "whiteSpace": "normal",
+                            "height": "auto",
+                            "maxWidth": 0,
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "textAlign": "center",
+                        },
+                        css=[dict(selector="p", rule="margin: 0; text-align: center")],
+                        markdown_options={"link_target": "_self"},
+                        filter_action="native",
+                        sort_action="native",
+                        sort_mode="multi",
+                    ),
+                ]
             ),
         ]
     )

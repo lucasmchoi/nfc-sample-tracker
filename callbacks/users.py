@@ -28,30 +28,58 @@ def get_users(db):
             "total_count"
         ]
 
+        entry["email"] = "[{}](mailto:{}?subject=NFC%20sample%20tracker)".format(
+            entry["email"], entry["email"]
+        )
+
         entry["samples"] = "[{}](/users/{})".format(
             samples_responsibility, entry["_id"]
         )
-        entry.pop("_id", None)
+        entry["_id"] = str(entry["_id"])
         ldata.append(entry)
 
     df = pd.DataFrame(ldata)
     return html.Div(
         [
-            dash_table.DataTable(
-                data=df.to_dict("records"),
-                columns=[
-                    {"name": "name", "id": "name"},
-                    {"name": "email", "id": "email"},
-                    {"name": "samples", "id": "samples", "presentation": "markdown"},
-                    {"name": "userid", "id": "userid"},
-                ],
-                style_cell={
-                    "whiteSpace": "pre-line",
-                    "height": "auto",
-                    "maxWidth": 0,
-                    "overflow": "hidden",
-                    "textOverflow": "ellipsis",
-                },
+            html.Div([html.H2("Users")]),
+            html.Div(
+                [
+                    dash_table.DataTable(
+                        data=df.to_dict("records"),
+                        columns=[
+                            {"name": "name", "id": "name", "presentation": "markdown"},
+                            {
+                                "name": "email",
+                                "id": "email",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "samples",
+                                "id": "samples",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "userid",
+                                "id": "userid",
+                                "presentation": "markdown",
+                            },
+                            {"name": "_id", "id": "_id", "presentation": "markdown"},
+                        ],
+                        style_cell={
+                            "whiteSpace": "normal",
+                            "height": "auto",
+                            "maxWidth": 0,
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "textAlign": "center",
+                        },
+                        css=[dict(selector="p", rule="margin: 0; text-align: center")],
+                        markdown_options={"link_target": "_self"},
+                        filter_action="native",
+                        sort_action="native",
+                        sort_mode="multi",
+                    ),
+                ]
             ),
         ]
     )
