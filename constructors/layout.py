@@ -28,6 +28,7 @@ def getgloballayout(app, __shorthash__):
                         children=[
                             dbc.NavItem(dbc.NavLink("Users", href="/users")),
                             dbc.NavItem(dbc.NavLink("Locations", href="/locations")),
+                            dbc.NavItem(dbc.NavLink("Samples", href="/samples")),
                         ],
                         brand=f"NFC sample tracker - ({__shorthash__})",
                         brand_href="/",

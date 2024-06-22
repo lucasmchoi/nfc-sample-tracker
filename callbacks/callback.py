@@ -11,6 +11,7 @@ from callbacks.users import get_users
 from callbacks.user import get_user
 from callbacks.locations import get_locations
 from callbacks.location import get_location
+from callbacks.samples import get_samples
 
 
 def getcallbacks(app, db):
@@ -29,11 +30,13 @@ def getcallbacks(app, db):
             return None
         elif check_menu_selection(fpath, "users", 1):
             return get_users(db)
-        elif check_menu_selection(fpath, "users", 2):
+        elif check_menu_selection(fpath, "user", 2):
             return get_user(db, fpath.split("/")[2])
         elif check_menu_selection(fpath, "locations", 1):
             return get_locations(db)
-        elif check_menu_selection(fpath, "locations", 2):
+        elif check_menu_selection(fpath, "location", 2):
             return get_location(db, fpath.split("/")[2])
+        elif check_menu_selection(fpath, "samples", 1):
+            return get_samples(db)
         else:
             raise PreventUpdate

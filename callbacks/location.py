@@ -28,6 +28,7 @@ def get_location(db, oid):
                 "orientation": "$information.orientation",
                 "doping": "$information.doping",
                 "growth": "$information.growth",
+                "responsible-user": 1,
                 "current_location": {
                     "$arrayElemAt": [
                         {
@@ -54,6 +55,7 @@ def get_location(db, oid):
                 "doping": 1,
                 "growth": 1,
                 "current_location": "$current_location.location",
+                "responsible-user": 1,
             }
         },
         {"$match": {"current_location": ObjectId(oid)}},
@@ -64,11 +66,26 @@ def get_location(db, oid):
                 "orientation": 1,
                 "doping": 1,
                 "growth": 1,
+                "responsible-user": 1,
             }
         },
     ]
 
     samples = list(db["samples"].aggregate(pipeline))
+
+    for entry in samples:
+        projection = {
+            "_id": 1,
+            "name": {"$concat": ["$name.first", " ", "$name.last"]},
+        }
+
+        responsible_user = db["users"].find_one(
+            {"_id": entry["responsible-user"]}, projection
+        )
+
+        entry["responsible-user"] = "[{}](/user/{})".format(
+            responsible_user["name"], responsible_user["_id"]
+        )
 
     df = pd.DataFrame(samples)
 
@@ -103,6 +120,11 @@ def get_location(db, oid):
                             {
                                 "name": "growth",
                                 "id": "growth",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "responsibility",
+                                "id": "responsible-user",
                                 "presentation": "markdown",
                             },
                         ],

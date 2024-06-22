@@ -57,7 +57,7 @@ def get_locations(db):
 
         samples_at_location = list(db["samples"].aggregate(pipeline))[0]["total_count"]
 
-        entry["samples at location"] = "[{}](/locations/{})".format(
+        entry["samples at location"] = "[{}](/location/{})".format(
             samples_at_location, entry["_id"]
         )
         entry["_id"] = str(entry["_id"])

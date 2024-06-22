@@ -32,7 +32,7 @@ def get_users(db):
             entry["email"], entry["email"]
         )
 
-        entry["samples"] = "[{}](/users/{})".format(
+        entry["samples"] = "[{}](/user/{})".format(
             samples_responsibility, entry["_id"]
         )
         entry["_id"] = str(entry["_id"])

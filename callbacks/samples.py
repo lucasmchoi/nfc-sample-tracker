@@ -1,26 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tuesday, 2024-06-18 22:22
+Created on Saturday, 2024-06-22 10:03
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
 """
 from dash import dash_table, html
 import pandas as pd
-from bson.objectid import ObjectId
 
 
-def get_user(db, oid):
-
-    projection = {
-        "_id": 0,
-        "name": {"$concat": ["$name.first", " ", "$name.last"]},
-    }
-    responsible_person = db["users"].find_one({"_id": ObjectId(oid)}, projection)[
-        "name"
-    ]
-
+def get_samples(db):
     pipeline = [
-        {"$match": {"responsible-user": ObjectId(oid)}},
         {
             "$project": {
                 "_id": 0,
@@ -29,6 +18,7 @@ def get_user(db, oid):
                 "orientation": "$information.orientation",
                 "doping": "$information.doping",
                 "growth": "$information.growth",
+                "responsible-user": 1,
                 "current_location": {
                     "$arrayElemAt": [
                         {
@@ -55,6 +45,7 @@ def get_user(db, oid):
                 "doping": 1,
                 "growth": 1,
                 "current_location": "$current_location.location",
+                "responsible-user": 1,
             }
         },
     ]
@@ -62,6 +53,19 @@ def get_user(db, oid):
     samples = list(db["samples"].aggregate(pipeline))
 
     for entry in samples:
+        projection = {
+            "_id": 1,
+            "name": {"$concat": ["$name.first", " ", "$name.last"]},
+        }
+
+        responsible_user = db["users"].find_one(
+            {"_id": entry["responsible-user"]}, projection
+        )
+
+        entry["responsible-user"] = "[{}](/user/{})".format(
+            responsible_user["name"], responsible_user["_id"]
+        )
+
         location = db["locations"].find_one(
             {"_id": entry["current_location"]}, {"_id": 0, "name": 1}
         )
@@ -74,7 +78,7 @@ def get_user(db, oid):
 
     return html.Div(
         [
-            html.Div([html.H2(f"{responsible_person}'s samples")]),
+            html.Div([html.H2("Samples")]),
             html.Div(
                 [
                     dash_table.DataTable(
@@ -101,13 +105,18 @@ def get_user(db, oid):
                                 "presentation": "markdown",
                             },
                             {
-                                "name": "doping",
-                                "id": "doping",
+                                "name": "growth",
+                                "id": "growth",
                                 "presentation": "markdown",
                             },
                             {
                                 "name": "growth",
                                 "id": "growth",
+                                "presentation": "markdown",
+                            },
+                            {
+                                "name": "responsibility",
+                                "id": "responsible-user",
                                 "presentation": "markdown",
                             },
                         ],
