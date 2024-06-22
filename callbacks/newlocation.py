@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from constructors.datatypes import LocationModel
 
 
-def get_location_callbacks(app, db):
+def get_newlocation_callbacks(app, db):
     @app.callback(
         Output(
             component_id="data-view",
@@ -27,7 +27,6 @@ def get_location_callbacks(app, db):
         prevent_initial_call=True,
     )
     def add_location(click, name, street, zipc, city, country, room):
-        print(click)
 
         try:
             location = LocationModel(
@@ -59,7 +58,7 @@ def get_location_callbacks(app, db):
                 ),
             )
 
-        except ValidationError as e:
+        except ValidationError:
             return (
                 dbc.Alert("The input was wrong, please try again", color="warning"),
             )

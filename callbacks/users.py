@@ -24,17 +24,22 @@ def get_users(db):
             {"$count": "total_count"},
         ]
 
-        samples_responsibility = list(db["samples"].aggregate(pipeline))[0][
-            "total_count"
-        ]
+        samples_responsibility_list = list(db["samples"].aggregate(pipeline))
+
+        if len(samples_responsibility_list) > 0:
+            samples_responsibility_list = samples_responsibility_list[0]
+            if "total_count" not in samples_responsibility_list:
+                samples_responsibility = 0
+            else:
+                samples_responsibility = samples_responsibility_list.get("total_count")
+        else:
+            samples_responsibility = 0
 
         entry["email"] = "[{}](mailto:{}?subject=NFC%20sample%20tracker)".format(
             entry["email"], entry["email"]
         )
 
-        entry["samples"] = "[{}](/user/{})".format(
-            samples_responsibility, entry["_id"]
-        )
+        entry["samples"] = "[{}](/user/{})".format(samples_responsibility, entry["_id"])
         entry["_id"] = str(entry["_id"])
         ldata.append(entry)
 

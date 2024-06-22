@@ -29,6 +29,7 @@ def getgloballayout(app, __shorthash__):
                             dbc.NavItem(dbc.NavLink("Users", href="/users")),
                             dbc.NavItem(dbc.NavLink("Locations", href="/locations")),
                             dbc.NavItem(dbc.NavLink("Samples", href="/samples")),
+                            dbc.NavItem(dbc.NavLink("Add User", href="/adduser")),
                             dbc.NavItem(
                                 dbc.NavLink("Add Location", href="/addlocation")
                             ),
@@ -45,9 +46,6 @@ def getgloballayout(app, __shorthash__):
             ),
             dbc.Container(
                 [
-                    html.Div(
-                        id="data-view",
-                    ),
                     dbc.Form(
                         [
                             dbc.Row(
@@ -135,6 +133,60 @@ def getgloballayout(app, __shorthash__):
                         ],
                         style={"display": "none"},
                         id="location-form",
+                    ),
+                    dbc.Form(
+                        [
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-user-form-first-name",
+                                                ),
+                                                dbc.Label("First name"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-user-form-last-name",
+                                                ),
+                                                dbc.Label("Last name"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="email",
+                                                    id="add-user-form-email",
+                                                ),
+                                                dbc.Label("E-Mail"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Submit",
+                                            color="primary",
+                                            id="add-user-form-submit",
+                                        ),
+                                        width="auto",
+                                    ),
+                                ]
+                            ),
+                        ],
+                        style={"display": "none"},
+                        id="user-form",
+                    ),
+                    html.Div(
+                        id="data-view",
                     ),
                 ]
             ),
