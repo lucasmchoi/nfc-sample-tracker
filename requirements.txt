@@ -6,7 +6,7 @@ pillow==10.3.0
 pymongo==4.7.1
 fastapi==0.111.0
 motor==3.4.0
-pydantic==2.7.3
+pydantic==2.7.4
 email-validator==2.1.1
 typing_extensions==4.12.2
 pandas==2.2.2
