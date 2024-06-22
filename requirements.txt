@@ -3,7 +3,7 @@ pi-rc522==2.3.0
 ndeflib==0.3.3
 # picamera2==0.3.18 # install via apt
 pillow==10.3.0
-pymongo==4.7.1
+pymongo==4.7.3
 fastapi==0.111.0
 motor==3.4.0
 pydantic==2.7.3
