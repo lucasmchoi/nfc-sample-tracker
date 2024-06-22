@@ -55,7 +55,16 @@ def get_locations(db):
             {"$count": "total_count"},
         ]
 
-        samples_at_location = list(db["samples"].aggregate(pipeline))[0]["total_count"]
+        samples_at_location_list = list(db["samples"].aggregate(pipeline))
+
+        if len(samples_at_location_list) > 0:
+            samples_at_location_list = samples_at_location_list[0]
+            if "total_count" not in samples_at_location_list:
+                samples_at_location = 0
+            else:
+                samples_at_location = samples_at_location_list.get("total_count")
+        else:
+            samples_at_location = 0
 
         entry["samples at location"] = "[{}](/location/{})".format(
             samples_at_location, entry["_id"]

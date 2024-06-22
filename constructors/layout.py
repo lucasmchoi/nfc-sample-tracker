@@ -29,6 +29,9 @@ def getgloballayout(app, __shorthash__):
                             dbc.NavItem(dbc.NavLink("Users", href="/users")),
                             dbc.NavItem(dbc.NavLink("Locations", href="/locations")),
                             dbc.NavItem(dbc.NavLink("Samples", href="/samples")),
+                            dbc.NavItem(
+                                dbc.NavLink("Add Location", href="/addlocation")
+                            ),
                         ],
                         brand=f"NFC sample tracker - ({__shorthash__})",
                         brand_href="/",
@@ -40,7 +43,101 @@ def getgloballayout(app, __shorthash__):
                     dcc.Location(id="url"),
                 ]
             ),
-            dbc.Container(html.Div(id="data-view")),
+            dbc.Container(
+                [
+                    html.Div(
+                        id="data-view",
+                    ),
+                    dbc.Form(
+                        [
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-location-form-name",
+                                                ),
+                                                dbc.Label("Location name"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-location-form-room",
+                                                ),
+                                                dbc.Label("Room"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Submit",
+                                            color="primary",
+                                            id="add-locaton-form-submit",
+                                        ),
+                                        width="auto",
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-location-form-street",
+                                                ),
+                                                dbc.Label("Street"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-location-form-zip",
+                                                ),
+                                                dbc.Label("ZIP"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-location-form-city",
+                                                ),
+                                                dbc.Label("City"),
+                                            ]
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.FormFloating(
+                                            [
+                                                dbc.Input(
+                                                    type="text",
+                                                    id="add-location-form-country",
+                                                ),
+                                                dbc.Label("Country"),
+                                            ]
+                                        )
+                                    ),
+                                ]
+                            ),
+                        ],
+                        style={"display": "none"},
+                        id="location-form",
+                    ),
+                ]
+            ),
         ],
         fluid=True,
     )
