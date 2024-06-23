@@ -21,6 +21,14 @@ sudo apt install -y python3-picamera2
 
 ```
 
+## Database ER model
+
+![Database ER](readme/dbdiagram.png)
+
+[Made using Mongo Modeler](https://www.mongomodeler.com/)
+
+[Mongo Modeler GitHub](https://github.com/Lemoncode/mongo-modeler)
+
 ## Requirements
 
 - [Python](https://www.python.org) (PSF LICENSE AGREEMENT)
