@@ -9,20 +9,6 @@ NFC sample tracking using NTAG 21X NFC tags
 - https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf (https://web.archive.org/web/20240404075504/https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)
 - https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf (https://web.archive.org/web/20240404041534/https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf)
 
-## Install
-
-### Native Raspberry Pi
-
-```bash
-sudo apt update && sudo apt upgrade
-sudo apt install git ufw python3-pip
-sudo raspi-config # enable spi
-git clone https://github.com/lucasmchoi/nfc-sample-tracker.git
-pip install -r requirements.txt
-# if picamera2 is not installed run the following command
-sudo apt install -y python3-picamera2
-
-```
 
 ## System architecture
 
@@ -64,3 +50,6 @@ This work is licensed under [AGPL v3](/LICENSE)
 - [pandas](https://github.com/pandas-dev/pandas) ([BSD 3-Clause License](LICENSES/pandas-LICENSE.txt))
 - [dash](https://github.com/plotly/dash) ([MIT License](LICENSES/dash-LICENSE.txt))
 - [dash-bootstrap-components](https://github.com/facultyai/dash-bootstrap-components/) ([Apache License 2.0](LICENSES/dash-bootstrap-components-LICENSE.txt))
+
+- [pylint-github-action](https://github.com/Silleellie/pylint-github-action) ([MIT License](LICENSES/pylint-github-action-LICENSE.txt))
+- [pylint](https://github.com/pylint-dev/pylint) ([GPL v2](LICENSES/pylint-LICENSE.txt))
