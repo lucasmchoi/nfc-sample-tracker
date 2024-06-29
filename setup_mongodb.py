@@ -3,7 +3,7 @@
 Created on Sunday, 2024-05-05 19:51
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
-@copyright: Copyright ©  2024 Luca Sung-Min Choi
+@copyright: Copyright © 2024 Luca Sung-Min Choi
 @license: AGPL v3
 @links: https://github.com/lucasmchoi
 """
