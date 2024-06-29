@@ -3,6 +3,9 @@
 Created on Saturday, 2024-06-22 10:43
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
+@copyright: Copyright ©  2024 Luca Sung-Min Choi
+@license: AGPL v3
+@links: https://github.com/lucasmchoi
 """
 from dash import Output, Input, State, html
 import dash_bootstrap_components as dbc

@@ -3,6 +3,9 @@
 Created on Saturday, 2024-06-08 22:04
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
+@copyright: Copyright ©  2024 Luca Sung-Min Choi
+@license: AGPL v3
+@links: https://github.com/lucasmchoi
 """
 import os
 from fastapi import FastAPI, HTTPException

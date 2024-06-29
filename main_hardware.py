@@ -3,6 +3,9 @@
 Created on Friday, 2024-05-03 19:29
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
+@copyright: Copyright ©  2024 Luca Sung-Min Choi
+@license: AGPL v3
+@links: https://github.com/lucasmchoi
 """
 import os
 from pirc522 import RFID
