@@ -20,6 +20,13 @@ pip install -r requirements.txt
 sudo apt install -y python3-picamera2
 
 ```
+## System architecture
+
+![System architecture](readme/architecture.png)
+
+[Made using Mermaid](https://mermaid.js.org/)
+
+[Mermaid GitHub](https://github.com/mermaid-js/mermaid)
 
 ## Database ER model
 

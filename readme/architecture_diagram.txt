@@ -1,0 +1,115 @@
+graph TB
+    subgraph Clients
+        USER[Regular Users]
+        DEVICE[Devices]
+        ADMIN[Admin Users]
+    end
+
+    subgraph Server
+        subgraph Docker
+            RP[Reverse Proxy<br>Traefik/HAProxy]
+            MDB[(MongoDB)]
+            ME[MongoDB Express]
+            subgraph NFCSampleTracker["NFC Sample Tracker"]
+                FASTAPI[FastAPI ✓]
+                DASH[Plotly Dash GUI ✓]
+                HWI1[Hardware Interface ✗]
+            end
+            BOR[Borgmatic Backups]
+            WTS[Watchtower]
+            
+            RP ==>|/api| FASTAPI
+            RP ==>|/gui| DASH
+            RP ==>|/mongo| ME
+            FASTAPI --> MDB
+            DASH --> MDB
+            ME --> MDB
+            BOR -.->|backup| MDB
+            BOR -.->|backup| ME
+            BOR -.->|backup| NFCSampleTracker
+            WTS -.->|update| RP
+            WTS -.->|update| MDB
+            WTS -.->|update| ME
+            WTS -.->|update| NFCSampleTracker
+            WTS -.->|update| BOR
+        end
+    end
+    
+    subgraph RaspberryPiZero2W["Raspberry Pi Zero 2 W"]
+        subgraph DockerRPi["Docker"]
+            subgraph NFCSampleTrackerRPi["NFC Sample Tracker"]
+                HWI2[Hardware Interface ✓]
+                FASTAPI2[FastAPI ✗]
+                DASH2[Plotly Dash GUI ✗]
+            end
+            WTR[Watchtower]
+        end
+        
+        subgraph Hardware
+            BTN1[Buttons]
+            LED1[LEDs]
+            CAM[Camera]
+            NFC1[NFC Sensor MFRC522]
+        end
+        
+        BTN1 --> HWI2
+        LED1 --> HWI2
+        CAM --> HWI2
+        NFC1 --> HWI2
+        HWI2 ==>|/api<br>Local only| RP
+        WTR -.->|update| NFCSampleTrackerRPi
+    end
+    
+    subgraph RaspberryPiPico["Raspberry Pi Pico"]
+        MP[MicroPython Program]
+        BTN2[Buttons]
+        LED2[LEDs]
+        NFC2[NFC Sensor MFRC522]
+        
+        BTN2 --> MP
+        LED2 --> MP
+        NFC2 --> MP
+        MP ==>|/api<br>Local only| RP
+    end
+    
+    USER ==>|/gui<br>Local only| RP
+    DEVICE ==>|/api<br>Local only| RP
+    ADMIN ==>|/gui elevated<br>Basic Auth<br>Local only| RP
+    ADMIN ==>|/mongo<br>Basic Auth<br>Local only| RP
+    
+    SMTP[SMTP Server]
+    FASTAPI ==> SMTP
+    
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef server fill:#E6F3FF,stroke:#4D94FF,stroke-width:2px;
+    classDef docker fill:#D1ECFF,stroke:#4D94FF,stroke-width:2px;
+    classDef nfc fill:#E6FFE6,stroke:#4CAF50,stroke-width:2px;
+    classDef rpi fill:#FFE6CC,stroke:#FF9933,stroke-width:2px;
+    classDef pico fill:#FFE6F0,stroke:#FF4081,stroke-width:2px;
+    classDef implemented fill:#90EE90,stroke:#006400,stroke-width:2px;
+    classDef notImplemented fill:#FFB6C1,stroke:#8B0000,stroke-width:2px;
+    classDef mainComponent fill:#FFD700,stroke:#B8860B,stroke-width:2px;
+    classDef database fill:#B0E0E6,stroke:#4682B4,stroke-width:2px;
+    classDef backup fill:#98FB98,stroke:#228B22,stroke-width:2px;
+    classDef watchtower fill:#DDA0DD,stroke:#8B008B,stroke-width:2px;
+    classDef microPython fill:#FFA07A,stroke:#FF4500,stroke-width:2px;
+    classDef client fill:#FFDAB9,stroke:#8B4513,stroke-width:2px;
+    classDef apiRoute stroke:#1E90FF,stroke-width:2px;
+    classDef guiRoute stroke:#32CD32,stroke-width:2px;
+    classDef adminRoute stroke:#FF69B4,stroke-width:2px;
+    classDef smtp fill:#FFD700,stroke:#DAA520,stroke-width:2px;
+
+    class Server server;
+    class Docker,DockerRPi docker;
+    class NFCSampleTracker,NFCSampleTrackerRPi nfc;
+    class RaspberryPiZero2W rpi;
+    class RaspberryPiPico pico;
+    class FASTAPI,DASH,HWI2 implemented;
+    class HWI1,FASTAPI2,DASH2 notImplemented;
+    class RP mainComponent;
+    class MDB database;
+    class BOR backup;
+    class WTS,WTR watchtower;
+    class MP microPython;
+    class USER,DEVICE,ADMIN client;
+    class SMTP smtp;
