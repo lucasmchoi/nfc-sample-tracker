@@ -30,38 +30,38 @@ NFC sample tracking using NTAG 21X NFC tags
 ### User processes
 #### New user
 ![User process diagram new user](readme/user_process_diagram_newuser.svg)
-[Process diagram new user](readme/process_diagram_newuser.svg)
+[Detailed process diagram new user](readme/process_diagram_newuser.svg)
 
 #### New plate
 ![User process diagram new plate](readme/user_process_diagram_newplate.svg)
-[Process diagram new plate](readme/process_diagram_newplate.svg)
+[Detailed process diagram new plate](readme/process_diagram_newplate.svg)
 
 #### New sample
 ![User process diagram new sample](readme/user_process_diagram_newsample.svg)
-[Process diagram new sample](readme/process_diagram_newsample.svg)
+[Detailed process diagram new sample](readme/process_diagram_newsample.svg)
 
 #### Send sample
 ![User process diagram send sample](readme/user_process_diagram_sendsample.svg)
-[Process diagram send sample](readme/process_diagram_sendsample.svg)
+[Detailed process diagram send sample](readme/process_diagram_sendsample.svg)
 
 #### New sample location
 ![User process diagram new sample location](readme/user_process_diagram_newsamplelocation.svg)
-[Process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
+[Detailed process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
 
 #### Sample plate transfer
 ![User process diagram sample plate transfer](readme/user_process_diagram_sampleplatetransfer.svg)
-[Process diagram sample plate transfer](readme/process_diagram_sampleplatetransfer.svg)
+[Detailed process diagram sample plate transfer](readme/process_diagram_sampleplatetransfer.svg)
 
 
 
 ### Admin processes
 #### Sample damaged or lost
 ![User process diagram sample damaged or lost](readme/user_process_diagram_sampledamagedlost.svg)
-[Process diagram sample damaged or lost](readme/process_diagram_sampledamagedlost.svg)
+[Detailed process diagram sample damaged or lost](readme/process_diagram_sampledamagedlost.svg)
 
 #### Sample owner transfer
 ![User rocess diagram sample owner transfer](readme/user_process_diagram_ownertransfer.svg)
-[Process diagram sample owner transfer](readme/process_diagram_ownertransfer.svg)
+[Detailed process diagram sample owner transfer](readme/process_diagram_ownertransfer.svg)
 
 
 
