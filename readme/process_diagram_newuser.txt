@@ -1,0 +1,49 @@
+sequenceDiagram
+    participant User
+    participant GUI
+    participant MongoDB
+    participant Raspberry Pi Zero 2 W
+    participant NFC Tag
+
+    User->>GUI: Submit firstname, lastname, email
+    
+    GUI->>GUI: Validate input
+    alt Input invalid
+        GUI-->>User: Error: Invalid input
+    else Input valid
+        GUI->>GUI: Generate UUID
+        GUI->>GUI: Generate userid from hashed UUID
+        GUI->>GUI: Get current timestamp for creation-date
+        GUI->>MongoDB: Write to 'users' collection (firstname, lastname, email, userid, creation-date)
+        alt Write to users successful
+            MongoDB-->>GUI: Return _id of written 'users' document
+            GUI->>MongoDB: Write to 'new-users' collection (_id as user_id, UUID, creation-date)
+            alt Write to new-users successful
+                GUI-->>User: Success: User created
+            else Write to new-users failed
+                GUI-->>User: Error: User creation failed
+            end
+        else Write to users failed
+            GUI-->>User: Error: User creation failed
+        end
+    end
+
+    User->>Raspberry Pi Zero 2 W: Physically approach with NFC tag
+    Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Detect button press
+    Raspberry Pi Zero 2 W->>MongoDB: Read latest entry from 'new-users'
+    alt Read successful
+        MongoDB-->>Raspberry Pi Zero 2 W: Return latest new-user entry
+        Raspberry Pi Zero 2 W->>NFC Tag: Attempt to write UUID and hashed user_id
+        alt NFC write successful
+            NFC Tag-->>Raspberry Pi Zero 2 W: Write confirmed
+            Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light success LED
+        else NFC write failed
+            NFC Tag-->>Raspberry Pi Zero 2 W: Write failed
+            Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
+        end
+    else Read failed
+        MongoDB-->>Raspberry Pi Zero 2 W: Error: Read failed
+        Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
+    end
+
+    Note over NFC Tag: NFC tag now contains<br/>UUID and hashed user_id (if successful)

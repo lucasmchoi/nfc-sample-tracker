@@ -26,6 +26,15 @@ NFC sample tracking using NTAG 21X NFC tags
 
 [Mongo Modeler GitHub](https://github.com/Lemoncode/mongo-modeler)
 
+## Process diagrams
+### New User
+![Process diagram new user](readme/process_diagram_newuser.svg)
+
+
+[Made using Mermaid](https://mermaid.js.org/)
+
+[Mermaid GitHub](https://github.com/mermaid-js/mermaid)
+
 ## License
 
 Copyright © 2024 [Luca Choi](https://www.github.com/lucasmchoi)
