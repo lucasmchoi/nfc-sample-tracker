@@ -1,0 +1,79 @@
+sequenceDiagram
+    participant User
+    participant GUI
+    participant MongoDB
+    participant RPi as Raspberry Pi Zero 2 W
+    participant TileNFC as Sample Tile NFC Tag
+    participant CaseNFC as Sample Case NFC Tag
+    participant Camera
+    participant FastAPI
+
+    Note over User, GUI: Step 1: Sample Registration in GUI
+    User->>GUI: Enter sample information<br>(information, owner, optionally files)
+    GUI->>MongoDB: Query highest sample number in 'samples' collection
+    MongoDB-->>GUI: Return highest sample number
+    GUI->>GUI: Generate next sample number
+    GUI->>GUI: Get current timestamp
+    GUI->>MongoDB: Create new sample document in 'samples' collection<br>(sample-number, information, owner, creation-date, optionally files)
+    alt Sample creation successful
+        MongoDB-->>GUI: Return new sample ObjectId
+        GUI->>MongoDB: Create entry in 'new-samples' collection<br>(sample_id, sample-number, material, orientation, origin, creation-date)
+        alt New-sample creation successful
+            MongoDB-->>GUI: Confirm 'new-samples' entry
+            GUI-->>User: Display success message and new sample number
+        else New-sample creation failed
+            MongoDB-->>GUI: Return error
+            GUI->>MongoDB: Delete previously created sample document
+            MongoDB-->>GUI: Confirm deletion
+            GUI-->>User: Display error message
+        end
+    else Sample creation failed
+        MongoDB-->>GUI: Return error
+        GUI-->>User: Display error message
+    end
+
+    Note over User, CaseNFC: Step 2: Associating Sample with Physical Tile and Case
+    User->>TileNFC: Glue NFC tag to sample tile
+    User->>CaseNFC: Glue NFC tag to sample case
+    User->>RPi: Approach with prepared sample tile, case, and registered sample
+    RPi->>RPi: Detect button press
+    RPi->>TileNFC: Check if Tile NFC tag is empty
+    TileNFC-->>RPi: Confirm if empty
+    RPi->>CaseNFC: Check if Case NFC tag is empty
+    CaseNFC-->>RPi: Confirm if empty
+    
+    alt Both NFC tags are empty
+        RPi->>FastAPI: GET /api/new-samples/latest
+        FastAPI->>MongoDB: Get latest entry from 'new-samples'
+        alt New-sample entry found
+            MongoDB-->>FastAPI: Return latest new-sample entry
+            FastAPI-->>RPi: Return sample details (ObjectId, sample number, sample information)
+            
+            alt Sample details retrieved successfully
+                RPi->>TileNFC: Write ObjectId, sample number, and sample information to Tile NFC
+                TileNFC-->>RPi: Confirm Tile NFC write
+                RPi->>CaseNFC: Write ObjectId, sample number, and sample information to Case NFC
+                CaseNFC-->>RPi: Confirm Case NFC write
+                RPi->>Camera: Take photo of sample
+                Camera-->>RPi: Return sample photo
+                RPi->>RPi: Get hardcoded location
+                RPi->>FastAPI: POST /api/samples/confirm-nfc-write (sample ObjectId, location, photo)
+                FastAPI->>MongoDB: Update sample document with NFC write confirmation, location, and photo
+                MongoDB-->>FastAPI: Confirm update
+                FastAPI->>MongoDB: Remove entry from 'new-samples' collection
+                MongoDB-->>FastAPI: Confirm removal
+                FastAPI-->>RPi: Confirm successful association
+                RPi->>RPi: Light success LED
+            else Sample details retrieval failed
+                RPi->>RPi: Light error LED
+            end
+        else No new-sample entry found
+            MongoDB-->>FastAPI: Return empty result
+            FastAPI-->>RPi: Return no sample available
+            RPi->>RPi: Light error LED
+        end
+    else One or both NFC tags are not empty
+        RPi->>RPi: Light error LED
+    end
+
+    Note over User, MongoDB: Sample is now registered, associated with physical tile and case,<br>and has a photo and location recorded (if successful)

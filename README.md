@@ -29,6 +29,9 @@ NFC sample tracking using NTAG 21X NFC tags
 ### New plate
 ![Process diagram new plate](readme/process_diagram_newplate.svg)
 
+### New sample
+![Process diagram new sample](readme/process_diagram_newsample.svg)
+
 
 [Made using Mermaid](https://mermaid.js.org/)
 
@@ -47,7 +50,7 @@ This work is licensed under [AGPL v3](/LICENSE)
 
 # Third-Party Requirements
 
-- [Python](https://www.python.org) (PSF LICENSE AGREEMENT)
+- [Python](https://www.python.org) (PSF License)
 - [Pip](https://pypi.org/)
 
 - [picamera2](https://github.com/RaspberryPi/picamera2) ([BSD 2-Clause License](LICENSES/picamera2-LICENSE.txt))
