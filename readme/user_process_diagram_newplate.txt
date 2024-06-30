@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant User
+    participant UserNFC as User NFC Tag
+    participant RPi as Raspberry Pi Device
+    participant Plate
+
+    User->>Plate: Prepare plate (glue NFC tags to tile and case)
+    opt User Identification
+        User->>RPi: Approach with User NFC Tag
+        User->>RPi: Press button for user identification
+        alt Identification Successful
+            RPi->>User: Display success (green LED)
+        else Identification Failed
+            RPi->>User: Display warning (yellow LED)
+        end
+    end
+    User->>RPi: Approach with prepared plate
+    User->>RPi: Press button to start plate registration
+    RPi->>RPi: Process plate
+    alt Processing Successful
+        RPi->>Plate: Write data to NFC tags
+        RPi->>User: Display success (green LED)
+    else Processing Failed
+        RPi->>User: Display error (red LED)
+    end
+
+    Note over User, Plate: Plate registration complete (if successful)

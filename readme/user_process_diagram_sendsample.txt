@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant User
+    participant Phone
+
+    User->>Phone: Scan personal NFC tag
+    alt Authentication Successful
+        Phone->>User: Display sample list
+        User->>Phone: Select sample to relocate
+        Phone->>User: Display sample details
+        User->>Phone: Enter new location and notes
+        User->>Phone: Tap "Confirm Relocation"
+        alt Relocation Successful
+            Phone->>User: Display success message
+        else Relocation Failed
+            Phone->>User: Display error message
+        end
+    else Authentication Failed
+        Phone->>User: Display access denied message
+    end
+
+    Note over User, Phone: Sample location updated (if successful)

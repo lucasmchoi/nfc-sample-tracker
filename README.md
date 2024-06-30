@@ -14,6 +14,8 @@ NFC sample tracking using NTAG 21X NFC tags
 
 [Mermaid GitHub](https://github.com/mermaid-js/mermaid)
 
+
+
 ## Database ER model
 
 ![Database ER](readme/dbdiagram.svg)
@@ -22,44 +24,52 @@ NFC sample tracking using NTAG 21X NFC tags
 
 [Mongo Modeler GitHub](https://github.com/Lemoncode/mongo-modeler)
 
+
+
 ## Process diagrams
 ### User processes
 #### New user
-![Process diagram new user](readme/process_diagram_newuser.svg)
+![User process diagram new user](readme/user_process_diagram_newuser.svg)
+[Process diagram new user](readme/process_diagram_newuser.svg)
 
 #### New plate
-![Process diagram new plate](readme/process_diagram_newplate.svg)
+![User process diagram new plate](readme/user_process_diagram_newplate.svg)
+[Process diagram new plate](readme/process_diagram_newplate.svg)
 
 #### New sample
-![Process diagram new sample](readme/process_diagram_newsample.svg)
+![User process diagram new sample](readme/user_process_diagram_newsample.svg)
+[Process diagram new sample](readme/process_diagram_newsample.svg)
 
 #### Send sample
-![Process diagram send sample](readme/process_diagram_sendsample.svg)
+![User process diagram send sample](readme/user_process_diagram_sendsample.svg)
+[Process diagram send sample](readme/process_diagram_sendsample.svg)
 
 #### New sample location
-![Process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
+![User process diagram new sample location](readme/user_process_diagram_newsamplelocation.svg)
+[Process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
 
 #### Sample plate transfer
-![Process diagram sample plate transfer](readme/process_diagram_sampleplatetransfer.svg)
+![User process diagram sample plate transfer](readme/user_process_diagram_sampleplatetransfer.svg)
+[Process diagram sample plate transfer](readme/process_diagram_sampleplatetransfer.svg)
 
 
 
 ### Admin processes
 #### Sample damaged or lost
-![Process diagram sample damaged or lost](readme/process_diagram_sampledamagedlost.svg)
+![User process diagram sample damaged or lost](readme/user_process_diagram_sampledamagedlost.svg)
+[Process diagram sample damaged or lost](readme/process_diagram_sampledamagedlost.svg)
 
 #### Sample owner transfer
-![Process diagram sample owner transfer](readme/process_diagram_ownertransfer.svg)
-
-
-
-
+![User rocess diagram sample owner transfer](readme/user_process_diagram_ownertransfer.svg)
+[Process diagram sample owner transfer](readme/process_diagram_ownertransfer.svg)
 
 
 
 [Made using Mermaid](https://mermaid.js.org/)
 
 [Mermaid GitHub](https://github.com/mermaid-js/mermaid)
+
+
 
 # Additional information
 ## Datasheets

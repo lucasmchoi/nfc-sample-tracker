@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant Admin
+    participant GUI
+
+    Admin->>GUI: Access admin interface URL
+    GUI->>Admin: Prompt for login credentials
+    Admin->>GUI: Enter username and password
+    alt Authentication Successful
+        GUI->>Admin: Display admin interface
+        Admin->>GUI: Navigate to owner transfer section
+        GUI->>Admin: Display list of sample owners
+        Admin->>GUI: Select current owner
+        GUI->>Admin: Display samples count for selected owner
+        Admin->>GUI: Input new owner information
+        Admin->>GUI: Click confirm transfer button
+        alt Transfer Successful
+            GUI->>Admin: Display success message with transfer details
+        else Transfer Failed
+            GUI->>Admin: Display error message
+        end
+    else Authentication Failed
+        GUI->>Admin: Display access denied message
+    end
+
+    Note over Admin, GUI: Ownership transfer complete (if successful)

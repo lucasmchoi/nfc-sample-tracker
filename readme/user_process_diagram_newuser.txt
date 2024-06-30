@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant User
+    participant GUI
+    participant Device as Raspberry Pi Zero 2 W
+    participant NFC Tag
+
+    User->>GUI: Enter firstname, lastname, email
+    alt Input valid
+        GUI->>User: Display success: User created
+    else Input invalid
+        GUI->>User: Display error: Invalid input
+    end
+
+    Note over User, GUI: User registration complete in system
+
+    User->>Device: Approach with new NFC tag
+    User->>Device: Press button to start NFC write
+    Device->>NFC Tag: Attempt to write user data
+    alt Write Successful
+        Device->>User: Display success (green LED)
+    else Write Failed
+        Device->>User: Display error (red LED)
+    end
+
+    Note over User, NFC Tag: NFC tag now contains user data (if successful)

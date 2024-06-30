@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant Admin
+    participant GUI
+
+    Admin->>GUI: Access admin interface URL
+    GUI->>Admin: Prompt for login credentials
+    Admin->>GUI: Enter username and password
+    alt Authentication Successful
+        GUI->>Admin: Display admin interface
+        Admin->>GUI: Navigate to sample management
+        GUI->>Admin: Display list of samples
+        Admin->>GUI: Select sample to mark as damaged/lost
+        GUI->>Admin: Display sample details
+        Admin->>GUI: Choose "Mark as Damaged" or "Mark as Lost"
+        Admin->>GUI: Enter additional information (date, notes)
+        Admin->>GUI: Click confirm action button
+        alt Update Successful
+            GUI->>Admin: Display success message
+        else Update Failed
+            GUI->>Admin: Display error message
+        end
+    else Authentication Failed
+        GUI->>Admin: Display access denied message
+    end
+
+    Note over Admin, GUI: Sample status updated (if successful)

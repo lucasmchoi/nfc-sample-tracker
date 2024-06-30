@@ -1,0 +1,28 @@
+sequenceDiagram
+    participant User
+    participant GUI
+    participant RPi as Raspberry Pi Device
+    participant Sample
+
+    Note over User, GUI: Step 1: Sample Registration
+    User->>GUI: Enter sample information
+    alt Registration Successful
+        GUI->>User: Display success message and new sample number
+    else Registration Failed
+        GUI->>User: Display error message
+    end
+
+    Note over User, Sample: Step 2: Physical Sample Association
+    User->>Sample: Prepare sample (glue NFC tags to tile and case)
+    User->>RPi: Approach with prepared sample
+    User->>RPi: Press button to start process
+    RPi->>RPi: Process sample
+    alt Processing Successful
+        RPi->>Sample: Write data to NFC tags
+        RPi->>RPi: Take photo of sample
+        RPi->>User: Display success (green LED)
+    else Processing Failed
+        RPi->>User: Display error (red LED)
+    end
+
+    Note over User, Sample: Sample registration complete (if successful)

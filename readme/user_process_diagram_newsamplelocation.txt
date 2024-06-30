@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant User
+    participant UserNFC as User NFC Tag
+    participant Device as Raspberry Pi Pico
+    participant SampleNFC as Sample Case
+
+    opt User Identification (Optional)
+        User->>Device: Approach with User NFC Tag
+        alt Identification Successful
+            Device->>User: Display success (green LED)
+        else Identification Failed
+            Device->>User: Display warning (yellow LED)
+        end
+    end
+
+    User->>Device: Approach with Sample Case
+    Device->>SampleNFC: Read Sample NFC Tag
+    Device->>Device: Process sample location update
+    alt Update Successful
+        Device->>User: Display success (green LED)
+    else Update Failed
+        Device->>User: Display error (red LED)
+    end
+
+    Note over User, Device: Sample location updated (if successful)

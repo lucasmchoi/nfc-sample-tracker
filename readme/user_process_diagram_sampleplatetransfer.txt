@@ -1,0 +1,33 @@
+sequenceDiagram
+    participant User
+    participant UserNFC as User NFC Tag
+    participant Device as Raspberry Pi Zero 2 W
+    participant FirstItem as First Item (Sample/Plate)
+    participant SecondItem as Second Item (Plate/Sample)
+
+    opt User Identification (Optional)
+        User->>Device: Approach with User NFC Tag
+        alt Identification Successful
+            Device->>User: Display success (green LED)
+        else Identification Failed
+            Device->>User: Display warning (yellow LED)
+        end
+    end
+
+    User->>Device: Approach with first item
+    User->>Device: Press button
+    Device->>FirstItem: Read NFC tag
+    Device->>User: Display ready for second item (blue LED)
+
+    User->>Device: Approach with second item
+    User->>Device: Press button
+    Device->>SecondItem: Read NFC tag
+    Device->>Device: Process transfer
+
+    alt Transfer Successful
+        Device->>User: Display success (green LED)
+    else Transfer Failed
+        Device->>User: Display error (red LED)
+    end
+
+    Note over User, Device: Sample-Plate transfer complete (if successful)
