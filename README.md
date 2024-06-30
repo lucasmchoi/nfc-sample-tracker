@@ -40,9 +40,14 @@ NFC sample tracking using NTAG 21X NFC tags
 ![Process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
 
 
+
 ### Admin processes
 #### Sample damaged or lost
 ![Process diagram sample damaged or lost](readme/process_diagram_sampledamagedlost.svg)
+
+#### Sample owner transfer
+![Process diagram sample owner transfer](readme/process_diagram_ownertransfer.svg)
+
 
 
 

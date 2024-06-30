@@ -1,0 +1,56 @@
+sequenceDiagram
+    participant Admin
+    participant GUI
+    participant MongoDB
+    participant EmailService
+
+    Admin->>GUI: Access admin interface URL
+    GUI->>Admin: Prompt for Basic Auth credentials
+    Admin->>GUI: Provide username and password (Basic Auth)
+    GUI->>MongoDB: Verify admin credentials
+    MongoDB-->>GUI: Confirm admin status
+
+    alt Admin authenticated successfully
+        GUI->>Admin: Display admin interface
+        Admin->>GUI: Navigate to owner transfer section
+        GUI->>MongoDB: Request list of sample owners
+        MongoDB-->>GUI: Return list of sample owners
+        GUI->>Admin: Display list of sample owners
+
+        Admin->>GUI: Select current owner
+        GUI->>MongoDB: Request samples count for selected owner
+        MongoDB-->>GUI: Return samples count
+        GUI->>Admin: Display samples count for selected owner
+
+        Admin->>GUI: Input new owner information
+        Admin->>GUI: Confirm transfer action
+
+        GUI->>MongoDB: Begin transaction
+        GUI->>MongoDB: Update ownership for all samples of selected owner
+        MongoDB-->>GUI: Confirm bulk update
+        GUI->>MongoDB: Add ownership transfer entry to each sample's history
+        MongoDB-->>GUI: Confirm history entries
+        GUI->>MongoDB: Commit transaction
+        MongoDB-->>GUI: Confirm transaction complete
+
+        alt Transfer successful
+            GUI->>MongoDB: Query for old owner's email
+            MongoDB-->>GUI: Return old owner's email
+            GUI->>EmailService: Send notification to old owner about ownership transfer
+            EmailService-->>GUI: Confirm email sent to old owner
+            GUI->>MongoDB: Query for new owner's email
+            MongoDB-->>GUI: Return new owner's email
+            GUI->>EmailService: Send notification to new owner about received samples
+            EmailService-->>GUI: Confirm email sent to new owner
+            GUI->>Admin: Display success message with transfer details
+        else Transfer failed
+            GUI->>MongoDB: Rollback transaction
+            MongoDB-->>GUI: Confirm rollback
+            GUI->>Admin: Display error message
+        end
+
+    else Admin authentication failed
+        GUI->>Admin: Display access denied message
+    end
+
+    Note over Admin, EmailService: Ownership of all samples transferred from old owner to new owner,<br>both parties notified, and transfer recorded in sample histories
