@@ -1,0 +1,54 @@
+sequenceDiagram
+    participant User
+    participant UserNFC as User NFC Tag
+    participant PiPico as Raspberry Pi Pico
+    participant SampleNFC as Sample Case NFC Tag
+    participant FastAPI
+    participant MongoDB
+    participant EmailService
+
+    User->>PiPico: Approach with User NFC Tag (optional)
+    alt User NFC Tag present
+        PiPico->>UserNFC: Read User NFC Tag
+        UserNFC-->>PiPico: Return hashed user_id
+        PiPico->>FastAPI: POST /api/users/verify (hashed user_id)
+        FastAPI->>MongoDB: Verify user
+        MongoDB-->>FastAPI: Confirm user verified
+        FastAPI-->>PiPico: User verified
+    else User NFC Tag not present or read fails
+        PiPico->>PiPico: Note user not identified
+    end
+
+    User->>PiPico: Approach with Sample Case
+    PiPico->>SampleNFC: Read Sample Case NFC Tag
+    SampleNFC-->>PiPico: Return sample ObjectId and number
+
+    PiPico->>PiPico: Get current timestamp
+    PiPico->>PiPico: Get hardcoded location
+
+    alt User was verified
+        PiPico->>FastAPI: POST /api/samples/add-location (sample ObjectId, location, timestamp, user_id)
+    else User was not verified
+        PiPico->>FastAPI: POST /api/samples/add-location (sample ObjectId, location, timestamp)
+    end
+
+    FastAPI->>MongoDB: Add new location entry to sample document
+    MongoDB-->>FastAPI: Confirm location added
+
+    alt Location added successfully
+        FastAPI->>MongoDB: Query for sample owner's email
+        MongoDB-->>FastAPI: Return owner's email
+        alt User was not verified
+            FastAPI->>EmailService: Send notification email to sample owner about unverified location update
+        else User was verified
+            FastAPI->>EmailService: Send notification email to sample owner about verified location update
+        end
+        EmailService-->>FastAPI: Confirm email sent
+        FastAPI-->>PiPico: Confirm successful location update
+        PiPico->>PiPico: Light success LED
+    else Location update failed
+        FastAPI-->>PiPico: Return error
+        PiPico->>PiPico: Light error LED
+    end
+
+    Note over User, EmailService: New location is added to the sample's history,<br>and owner is notified of the update

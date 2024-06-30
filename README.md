@@ -33,7 +33,10 @@ NFC sample tracking using NTAG 21X NFC tags
 ![Process diagram new sample](readme/process_diagram_newsample.svg)
 
 ### Send sample
-![Process diagram new sample](readme/process_diagram_sendsample.svg)
+![Process diagram send sample](readme/process_diagram_sendsample.svg)
+
+### New sample location
+![Process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
 
 
 
