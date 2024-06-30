@@ -1,0 +1,47 @@
+sequenceDiagram
+    participant User
+    participant Phone
+    participant GUI
+    participant MongoDB
+    participant EmailService
+
+    User->>Phone: Scan NFC tag with phone
+    Phone->>GUI: Open page with hashed user_id
+    GUI->>MongoDB: Query user information using hashed user_id
+    MongoDB-->>GUI: Return user information
+    
+    alt User authenticated successfully
+        User->>Phone: Select sample relocaton
+        Phone->>GUI: Request sample relocation page
+        GUI->>Phone: Display sample relocation page
+        User->>Phone: Select sample to relocate
+        Phone->>GUI: Request sample information
+        GUI->>MongoDB: Query for sample information
+        MongoDB-->>GUI: Return sample details
+        GUI->>Phone: Send sample details
+        Phone->>User: Display sample details
+
+        User->>Phone: Input new location and optional notes
+        User->>Phone: Confirm relocation
+        Phone->>GUI: Send relocation request
+
+        GUI->>MongoDB: Update sample document with new entry in locations and notes
+        MongoDB-->>GUI: Confirm update
+        
+        alt Update successful
+            GUI->>MongoDB: Query for sample owner's email
+            MongoDB-->>GUI: Return owner's email
+            GUI->>EmailService: Send notification email to sample owner about relocation and relocator
+            EmailService-->>GUI: Confirm email sent
+            GUI->>Phone: Send success message
+            Phone->>User: Display success message
+        else Update failed
+            GUI->>Phone: Send error message
+            Phone->>User: Display error message
+        end
+    else User authentication failed
+        GUI->>Phone: Send access denied message
+        Phone->>User: Display access denied message
+    end
+
+    Note over User, EmailService: Sample location is updated in the database,<br>history is recorded, and owner is notified (if authenticated and successful)
