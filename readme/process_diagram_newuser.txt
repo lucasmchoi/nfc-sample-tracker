@@ -2,6 +2,7 @@ sequenceDiagram
     participant User
     participant GUI
     participant MongoDB
+    participant FastAPI
     participant Raspberry Pi Zero 2 W
     participant NFC Tag
 
@@ -33,9 +34,11 @@ sequenceDiagram
     Raspberry Pi Zero 2 W->>NFC Tag: Check if NFC tag is empty
     alt NFC tag is empty
         NFC Tag-->>Raspberry Pi Zero 2 W: Tag is empty
-        Raspberry Pi Zero 2 W->>MongoDB: Read latest entry from 'new-users'
+        Raspberry Pi Zero 2 W->>FastAPI: GET /api/new-users/latest
+        FastAPI->>MongoDB: Read latest entry from 'new-users'
+        MongoDB-->>FastAPI: Return latest new-user entry
+        FastAPI-->>Raspberry Pi Zero 2 W: Return latest new-user entry
         alt Read successful
-            MongoDB-->>Raspberry Pi Zero 2 W: Return latest new-user entry
             Raspberry Pi Zero 2 W->>NFC Tag: Attempt to write UUID and hashed user_id
             alt NFC write successful
                 NFC Tag-->>Raspberry Pi Zero 2 W: Write confirmed
@@ -45,7 +48,6 @@ sequenceDiagram
                 Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
             end
         else Read failed
-            MongoDB-->>Raspberry Pi Zero 2 W: Error: Read failed
             Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
         end
     else NFC tag is not empty
