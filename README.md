@@ -4,10 +4,6 @@ NFC sample tracking using NTAG 21X NFC tags
 
 ![pylint](https://img.shields.io/badge/PyLint-9.32-yellow?logo=python&logoColor=white)
 
-## Datasheets
-
-- https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf (https://web.archive.org/web/20240404075504/https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)
-- https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf (https://web.archive.org/web/20240404041534/https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf)
 
 # Architecture and processes
 ## System architecture
@@ -35,12 +31,18 @@ NFC sample tracking using NTAG 21X NFC tags
 
 [Mermaid GitHub](https://github.com/mermaid-js/mermaid)
 
-## License
+# Additional information
+## Datasheets
+
+- https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf (https://web.archive.org/web/20240404075504/https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)
+- https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf (https://web.archive.org/web/20240404041534/https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf)
+
+# License
 
 Copyright © 2024 [Luca Choi](https://www.github.com/lucasmchoi)
 This work is licensed under [AGPL v3](/LICENSE)
 
-## Third-Party Requirements
+# Third-Party Requirements
 
 - [Python](https://www.python.org) (PSF LICENSE AGREEMENT)
 - [Pip](https://pypi.org/)
