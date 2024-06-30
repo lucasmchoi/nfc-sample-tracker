@@ -26,6 +26,9 @@ NFC sample tracking using NTAG 21X NFC tags
 ### New user
 ![Process diagram new user](readme/process_diagram_newuser.svg)
 
+### New plate
+![Process diagram new plate](readme/process_diagram_newplate.svg)
+
 
 [Made using Mermaid](https://mermaid.js.org/)
 

@@ -1,0 +1,107 @@
+sequenceDiagram
+    participant User
+    participant User NFC Tag
+    participant Plate Tile NFC Tag
+    participant Plate Case NFC Tag
+    participant Raspberry Pi Zero 2 W
+    participant FastAPI
+    participant MongoDB
+
+    User->>Plate Tile NFC Tag: Glue NFC tag to plate tile
+    User->>Plate Case NFC Tag: Glue NFC tag to plate case
+
+    opt Encouraged: User NFC Tag Reading
+        User->>Raspberry Pi Zero 2 W: Approach for user identification
+        Raspberry Pi Zero 2 W->>User NFC Tag: Read user NFC tag
+        alt User NFC tag read successful
+            User NFC Tag-->>Raspberry Pi Zero 2 W: Return user ID
+        else User NFC tag read failed
+            User NFC Tag-->>Raspberry Pi Zero 2 W: Read failed
+            Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light warning LED, continue without user ID
+        end
+    end
+
+    User->>Raspberry Pi Zero 2 W: Approach with prepared plate tile and case
+    Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Detect button press
+    Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Get hardcoded location
+    
+    alt User ID available
+        Raspberry Pi Zero 2 W->>FastAPI: POST /api/plates/create-or-get-next (hardcoded location, user ID)
+    else User ID not available
+        Raspberry Pi Zero 2 W->>FastAPI: POST /api/plates/create-or-get-next (hardcoded location)
+    end
+
+    FastAPI->>MongoDB: Count documents in new-plates collection
+    MongoDB-->>FastAPI: Return count
+
+    alt New-plates is empty
+        FastAPI->>FastAPI: Get current timestamp
+        FastAPI->>MongoDB: GET highest plate number
+        MongoDB-->>FastAPI: Return highest plate number
+        FastAPI->>FastAPI: Generate next plate number
+        alt User ID available
+            FastAPI->>MongoDB: Create new plate document (plate-number, creation-date, location, user)
+        else User ID not available
+            FastAPI->>MongoDB: Create new plate document (plate-number, creation-date, location)
+        end
+        alt MongoDB write successful
+            MongoDB-->>FastAPI: Write confirmed, return ObjectId
+            FastAPI->>MongoDB: Create new document in new-plates collection (plate-number, creation-date, plate_id)
+            alt MongoDB write to new-plates successful
+                MongoDB-->>FastAPI: Write to new-plates confirmed
+                FastAPI-->>Raspberry Pi Zero 2 W: New plate created, return ObjectId and plate number
+            else MongoDB write to new-plates failed
+                MongoDB-->>FastAPI: Write to new-plates failed
+                FastAPI->>MongoDB: Delete previously created plate document
+                MongoDB-->>FastAPI: Deletion confirmed
+                FastAPI-->>Raspberry Pi Zero 2 W: Database write failed
+            end
+        else MongoDB write failed
+            FastAPI-->>Raspberry Pi Zero 2 W: Database write failed
+        end
+    else New-plates is not empty
+        FastAPI->>MongoDB: Get latest entry from new-plates
+        MongoDB-->>FastAPI: Return latest new-plates entry
+        FastAPI-->>Raspberry Pi Zero 2 W: Return existing ObjectId and plate number
+    end
+
+    alt Received ObjectId and plate number
+        Raspberry Pi Zero 2 W->>Plate Tile NFC Tag: Check if tile NFC tag is empty
+        alt Plate Tile NFC tag is empty
+            Plate Tile NFC Tag-->>Raspberry Pi Zero 2 W: Tile tag is empty
+            Raspberry Pi Zero 2 W->>Plate Case NFC Tag: Check if case NFC tag is empty
+            alt Plate Case NFC tag is empty
+                Plate Case NFC Tag-->>Raspberry Pi Zero 2 W: Case tag is empty
+                
+                Raspberry Pi Zero 2 W->>Plate Tile NFC Tag: Write ObjectId and plate number
+                alt Tile NFC write successful
+                    Plate Tile NFC Tag-->>Raspberry Pi Zero 2 W: Tile write confirmed
+                    Raspberry Pi Zero 2 W->>Plate Case NFC Tag: Write ObjectId and plate number
+                    alt Case NFC write successful
+                        Plate Case NFC Tag-->>Raspberry Pi Zero 2 W: Case write confirmed
+                        Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light success LED
+                        Raspberry Pi Zero 2 W->>FastAPI: POST /api/plates/confirm-nfc-write (ObjectId)
+                        FastAPI->>MongoDB: Delete entry from new-plates collection
+                        MongoDB-->>FastAPI: Deletion confirmed
+                        FastAPI-->>Raspberry Pi Zero 2 W: NFC write confirmation received
+                    else Case NFC write failed
+                        Plate Case NFC Tag-->>Raspberry Pi Zero 2 W: Case write failed
+                        Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
+                    end
+                else Tile NFC write failed
+                    Plate Tile NFC Tag-->>Raspberry Pi Zero 2 W: Tile write failed
+                    Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
+                end
+            else Plate Case NFC tag is not empty
+                Plate Case NFC Tag-->>Raspberry Pi Zero 2 W: Case tag is not empty
+                Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
+            end
+        else Plate Tile NFC tag is not empty
+            Plate Tile NFC Tag-->>Raspberry Pi Zero 2 W: Tile tag is not empty
+            Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
+        end
+    else Failed to get ObjectId and plate number
+        Raspberry Pi Zero 2 W->>Raspberry Pi Zero 2 W: Light error LED
+    end
+
+    Note over Plate Tile NFC Tag, Plate Case NFC Tag: Both NFC tags now contain<br/>ObjectId and plate number<br/>(if successful)
