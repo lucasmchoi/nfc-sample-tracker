@@ -1,49 +1,13 @@
-db.createCollection("new-users", {
+db.createCollection("new-plates", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      title: "new-users",
+      title: "new-plates",
       required: ["_id"],
       properties: {
         "_id": { bsonType: "objectId" },
-        "user_id": { bsonType: "objectId" },
-        "uuid": { bsonType: "string" },
-      },
-    },
-  },
-});
-
-db.createCollection("plates", {
-  validator: {
-    $jsonSchema: {
-      bsonType: "object",
-      title: "plates",
-      required: ["_id"],
-      properties: {
-        "_id": { bsonType: "objectId" },
-        "plate-number": { bsonType: "string" },
-        "modifications": { bsonType: "array", items: { bsonType: "object" } },
-        "locations": { bsonType: "array", items: { bsonType: "object" } },
-        "images": { bsonType: "array", items: { bsonType: "objectId" } },
-      },
-    },
-  },
-});
-
-db.createCollection("samples", {
-  validator: {
-    $jsonSchema: {
-      bsonType: "object",
-      title: "samples",
-      required: ["_id"],
-      properties: {
-        "_id": { bsonType: "objectId" },
-        "sample-number": { bsonType: "int" },
-        "owner": { bsonType: "objectId" },
-        "information": { bsonType: "object", title: "information", properties: { "material": { bsonType: "string" }, "orientation": { bsonType: "string" }, "doping": { bsonType: "string" }, "growth": { bsonType: "string" }, "note": { bsonType: "string" }, }, },
-        "locations": { bsonType: "array", items: { bsonType: "object" } },
-        "images": { bsonType: "array", items: { bsonType: "objectId" } },
-        "files": { bsonType: "array", items: { bsonType: "objectId" } },
+        "plate_id": { bsonType: "objectId" },
+        "creation-date": { bsonType: "date" },
       },
     },
   },
@@ -58,6 +22,23 @@ db.createCollection("new-samples", {
       properties: {
         "_id": { bsonType: "objectId" },
         "sample_id": { bsonType: "objectId" },
+        "creation-date": { bsonType: "date" },
+      },
+    },
+  },
+});
+
+db.createCollection("new-users", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      title: "new-users",
+      required: ["_id"],
+      properties: {
+        "_id": { bsonType: "objectId" },
+        "user_id": { bsonType: "objectId" },
+        "uuid": { bsonType: "string" },
+        "creation-date": { bsonType: "date" },
       },
     },
   },
@@ -68,12 +49,14 @@ db.createCollection("users", {
     $jsonSchema: {
       bsonType: "object",
       title: "users",
-      required: ["_id"],
+      required: ["_id", "userid"],
       properties: {
         "_id": { bsonType: "objectId" },
         "name": { bsonType: "object", title: "name", properties: { "first": { bsonType: "string" }, "last": { bsonType: "string" }, }, },
         "email": { bsonType: "string" },
         "userid": { bsonType: "string" },
+        "creation-date": { bsonType: "date" },
+        "modification-date": { bsonType: "date" },
       },
     },
   },
@@ -89,6 +72,46 @@ db.createCollection("locations", {
         "_id": { bsonType: "objectId" },
         "name": { bsonType: "string" },
         "location": { bsonType: "object", title: "location", properties: { "address": { bsonType: "object", title: "address", properties: { "street": { bsonType: "string" }, "zip": { bsonType: "string" }, "city": { bsonType: "string" }, "country": { bsonType: "string" }, }, }, "room": { bsonType: "string" }, }, },
+        "creation-date": { bsonType: "date" },
+        "modification-date": { bsonType: "date" },
+      },
+    },
+  },
+});
+
+db.createCollection("plates", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      title: "plates",
+      required: ["_id", "plate-number"],
+      properties: {
+        "_id": { bsonType: "objectId" },
+        "plate-number": { bsonType: "string" },
+        "modifications": { bsonType: "array", items: { bsonType: "object" } },
+        "locations": { bsonType: "array", items: { bsonType: "object" } },
+        "images": { bsonType: "array", items: { bsonType: "objectId" } },
+        "creation-date": { bsonType: "date" },
+      },
+    },
+  },
+});
+
+db.createCollection("samples", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      title: "samples",
+      required: ["_id", "sample-number"],
+      properties: {
+        "_id": { bsonType: "objectId" },
+        "sample-number": { bsonType: "int" },
+        "owners": { bsonType: "array", items: { bsonType: "object" } },
+        "information": { bsonType: "object", title: "information", properties: { "material": { bsonType: "string" }, "orientation": { bsonType: "string" }, "doping": { bsonType: "string" }, "growth": { bsonType: "string" }, "note": { bsonType: "string" }, "damaged": { bsonType: "object", title: "damaged", properties: { "date": { bsonType: "date" }, "note": { bsonType: "string" }, }, }, "lost": { bsonType: "object", title: "lost", properties: { "date": { bsonType: "date" }, "note": { bsonType: "string" }, }, }, }, },
+        "locations": { bsonType: "array", items: { bsonType: "object" } },
+        "images": { bsonType: "array", items: { bsonType: "objectId" } },
+        "files": { bsonType: "array", items: { bsonType: "objectId" } },
+        "creation-date": { bsonType: "date" },
       },
     },
   },
