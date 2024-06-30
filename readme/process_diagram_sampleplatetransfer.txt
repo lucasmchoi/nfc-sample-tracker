@@ -1,0 +1,85 @@
+sequenceDiagram
+    participant User
+    participant UserNFC as User NFC Tag
+    participant RPi as Raspberry Pi Zero 2 W
+    participant FirstNFC as First NFC Tag
+    participant SecondNFC as Second NFC Tag
+    participant Camera
+    participant FastAPI
+    participant MongoDB
+    participant EmailService
+
+    opt Encouraged: User NFC Tag Reading
+        User->>RPi: Approach for user identification
+        RPi->>UserNFC: Read user NFC tag
+        alt User NFC tag read successful
+            UserNFC-->>RPi: Return user ID
+            RPi->>FastAPI: POST /api/users/verify (user ID)
+            FastAPI->>MongoDB: Verify user
+            MongoDB-->>FastAPI: Confirm user verified
+            FastAPI-->>RPi: User verified
+        else User NFC tag read failed
+            RPi->>RPi: Light warning LED, continue without user ID
+        end
+    end
+
+    User->>RPi: Approach with first item (sample or plate)
+    RPi->>RPi: Detect button press
+    RPi->>FirstNFC: Read first NFC tag
+    FirstNFC-->>RPi: Return ObjectId and type (sample or plate)
+
+    alt First item is a plate
+        RPi->>Camera: Take image of plate
+        Camera-->>RPi: Return plate image
+    end
+
+    RPi->>FastAPI: GET /api/item/details (ObjectId, type)
+    FastAPI->>MongoDB: Query item information
+    MongoDB-->>FastAPI: Return item details
+    FastAPI-->>RPi: Send item details
+    RPi->>RPi: Store first item details
+    RPi->>RPi: Light LED to indicate ready for second item
+
+    User->>RPi: Approach with second item
+    RPi->>RPi: Detect button press
+    RPi->>SecondNFC: Read second NFC tag
+    SecondNFC-->>RPi: Return ObjectId and type (sample or plate)
+
+    alt Second item is a plate
+        RPi->>Camera: Take image of plate
+        Camera-->>RPi: Return plate image
+    end
+
+    RPi->>FastAPI: GET /api/item/details (ObjectId, type)
+    FastAPI->>MongoDB: Query item information
+    MongoDB-->>FastAPI: Return item details
+    FastAPI-->>RPi: Send item details
+
+    alt First item is Sample and Second is Plate
+        RPi->>FastAPI: POST /api/samples/transfer-to-plate (sample ObjectId, plate ObjectId, plate image, user ID)
+    else First item is Plate and Second is Sample
+        RPi->>FastAPI: POST /api/samples/transfer-from-plate (sample ObjectId, plate ObjectId, plate image, user ID)
+    else Both items are the same type
+        RPi->>RPi: Light error LED
+    end
+
+    alt Transfer is valid
+        FastAPI->>MongoDB: Update sample document with new plate association
+        MongoDB-->>FastAPI: Confirm sample update
+        FastAPI->>MongoDB: Update plate document with sample list and new image
+        MongoDB-->>FastAPI: Confirm plate update
+
+        alt Update successful
+            FastAPI->>MongoDB: Query for sample owner's email
+            MongoDB-->>FastAPI: Return sample owner's email
+            FastAPI->>EmailService: Send notification to sample owner about transfer
+            EmailService-->>FastAPI: Confirm email sent
+            FastAPI-->>RPi: Confirm successful transfer
+            RPi->>RPi: Light success LED
+        else Update failed
+            FastAPI-->>RPi: Return error
+            RPi->>RPi: Light error LED
+        end
+    end
+
+    Note over User, EmailService: Sample transferred to/from plate, database updated with new plate image,<br>transfer recorded with user ID (if available), and sample owner notified

@@ -39,6 +39,9 @@ NFC sample tracking using NTAG 21X NFC tags
 #### New sample location
 ![Process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
 
+#### Sample plate transfer
+![Process diagram sample plate transfer](readme/process_diagram_sampleplatetransfer.svg)
+
 
 
 ### Admin processes
