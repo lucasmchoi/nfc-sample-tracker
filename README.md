@@ -9,10 +9,10 @@ NFC sample tracking using NTAG 21X NFC tags
 - https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf (https://web.archive.org/web/20240404075504/https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)
 - https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf (https://web.archive.org/web/20240404041534/https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf)
 
-
+# Architecture and processes
 ## System architecture
 
-![System architecture](readme/architecture.png)
+![System architecture](readme/architecture.svg)
 
 [Made using Mermaid](https://mermaid.js.org/)
 
@@ -20,14 +20,14 @@ NFC sample tracking using NTAG 21X NFC tags
 
 ## Database ER model
 
-![Database ER](readme/dbdiagram.png)
+![Database ER](readme/dbdiagram.svg)
 
 [Made using Mongo Modeler](https://www.mongomodeler.com/)
 
 [Mongo Modeler GitHub](https://github.com/Lemoncode/mongo-modeler)
 
 ## Process diagrams
-### New User
+### New user
 ![Process diagram new user](readme/process_diagram_newuser.svg)
 
 
