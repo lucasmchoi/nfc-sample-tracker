@@ -1,18 +1,3 @@
-db.createCollection("new-plates", {
-  validator: {
-    $jsonSchema: {
-      bsonType: "object",
-      title: "new-plates",
-      required: ["_id"],
-      properties: {
-        "_id": { bsonType: "objectId" },
-        "plate_id": { bsonType: "objectId" },
-        "creation-date": { bsonType: "date" },
-      },
-    },
-  },
-});
-
 db.createCollection("new-samples", {
   validator: {
     $jsonSchema: {
