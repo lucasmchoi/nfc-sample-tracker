@@ -23,20 +23,29 @@ NFC sample tracking using NTAG 21X NFC tags
 [Mongo Modeler GitHub](https://github.com/Lemoncode/mongo-modeler)
 
 ## Process diagrams
-### New user
+### User processes
+#### New user
 ![Process diagram new user](readme/process_diagram_newuser.svg)
 
-### New plate
+#### New plate
 ![Process diagram new plate](readme/process_diagram_newplate.svg)
 
-### New sample
+#### New sample
 ![Process diagram new sample](readme/process_diagram_newsample.svg)
 
-### Send sample
+#### Send sample
 ![Process diagram send sample](readme/process_diagram_sendsample.svg)
 
-### New sample location
+#### New sample location
 ![Process diagram new sample location](readme/process_diagram_newsamplelocation.svg)
+
+
+### Admin processes
+#### Sample damaged or lost
+![Process diagram sample damaged or lost](readme/process_diagram_sampledamagedlost.svg)
+
+
+
 
 
 

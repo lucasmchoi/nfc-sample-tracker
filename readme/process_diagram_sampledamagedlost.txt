@@ -1,0 +1,46 @@
+sequenceDiagram
+    participant Admin
+    participant GUI
+    participant MongoDB
+    participant EmailService
+
+    Admin->>GUI: Access admin interface URL
+    GUI->>Admin: Prompt for Basic Auth credentials
+    Admin->>GUI: Provide username and password (Basic Auth)
+    GUI->>MongoDB: Verify admin credentials
+    MongoDB-->>GUI: Confirm admin status
+
+    alt Admin authenticated successfully
+        GUI->>Admin: Display admin interface
+        Admin->>GUI: Navigate to sample management
+        GUI->>MongoDB: Request list of samples
+        MongoDB-->>GUI: Return list of samples
+        GUI->>Admin: Display list of samples
+
+        Admin->>GUI: Select sample to mark as damaged/lost
+        GUI->>MongoDB: Request detailed sample information
+        MongoDB-->>GUI: Return sample details
+        GUI->>Admin: Display sample details
+
+        Admin->>GUI: Choose "Mark as Damaged" or "Mark as Lost"
+        Admin->>GUI: Enter additional information (e.g., date, notes)
+        Admin->>GUI: Confirm action
+
+        GUI->>MongoDB: Update sample status (damaged/lost), add timestamp and notes
+        MongoDB-->>GUI: Confirm update
+
+        alt Update successful
+            GUI->>MongoDB: Query for sample owner's email
+            MongoDB-->>GUI: Return owner's email
+            GUI->>EmailService: Send notification to sample owner about status change
+            EmailService-->>GUI: Confirm email sent
+            GUI->>Admin: Display success message
+        else Update failed
+            GUI->>Admin: Display error message
+        end
+
+    else Admin authentication failed
+        GUI->>Admin: Display access denied message
+    end
+
+    Note over Admin, EmailService: Sample is marked as damaged/lost in the database,<br>and owner is notified of the status change
