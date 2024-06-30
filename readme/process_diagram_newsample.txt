@@ -7,6 +7,7 @@ sequenceDiagram
     participant CaseNFC as Sample Case NFC Tag
     participant Camera
     participant FastAPI
+    participant EmailService
 
     Note over User, GUI: Step 1: Sample Registration in GUI
     User->>GUI: Enter sample information<br>(information, owner, optionally files)
@@ -62,6 +63,10 @@ sequenceDiagram
                 MongoDB-->>FastAPI: Confirm update
                 FastAPI->>MongoDB: Remove entry from 'new-samples' collection
                 MongoDB-->>FastAPI: Confirm removal
+                FastAPI->>MongoDB: Query for sample owner's email
+                MongoDB-->>FastAPI: Return owner's email
+                FastAPI->>EmailService: Send notification email to sample owner
+                EmailService-->>FastAPI: Confirm email sent
                 FastAPI-->>RPi: Confirm successful association
                 RPi->>RPi: Light success LED
             else Sample details retrieval failed
@@ -76,4 +81,4 @@ sequenceDiagram
         RPi->>RPi: Light error LED
     end
 
-    Note over User, MongoDB: Sample is now registered, associated with physical tile and case,<br>and has a photo and location recorded (if successful)
+    Note over User, EmailService: Sample is now registered, associated with physical tile and case,<br>has a photo and location recorded, and owner is notified (if successful)
