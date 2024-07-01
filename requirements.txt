@@ -1,4 +1,4 @@
-rpi-lgpio==0.5
+rpi-lgpio==0.6
 pi-rc522==2.3.0
 ndeflib==0.3.3
 # picamera2==0.3.18 # install via apt
