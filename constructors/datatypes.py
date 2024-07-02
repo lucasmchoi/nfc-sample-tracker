@@ -7,7 +7,8 @@ Created on Sunday, 2024-06-09 08:47
 @license: AGPL v3
 @links: https://github.com/lucasmchoi
 """
-from typing import Optional, List
+from datetime import datetime
+from typing import Optional, List, Union
 from typing_extensions import Annotated
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 from pydantic.functional_validators import BeforeValidator
@@ -46,6 +47,10 @@ class LocationModel(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
     location: Location
+    creation_date: datetime = Field(alias="creation-date", default=None)
+    modification_date: Union[datetime, None] = Field(
+        alias="modification-date", default=None
+    )
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -61,6 +66,8 @@ class LocationModel(BaseModel):
                     },
                     "room": "EW921",
                 },
+                "creation-date": datetime(2024, 7, 2, 21, 0, 0),
+                "modification-date": None,
             }
         },
     )
@@ -92,6 +99,10 @@ class UserModel(BaseModel):
     name: Name
     email: EmailStr
     userid: str
+    creation_date: datetime = Field(alias="creation-date", default=None)
+    modification_date: Union[datetime, None] = Field(
+        alias="modification-date", default=None
+    )
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -100,6 +111,8 @@ class UserModel(BaseModel):
                 "name": {"first": "Eugene", "last": "Wigner"},
                 "email": "eugene.wigner@physik.tu-berlin.de",
                 "userid": "d8602a8faec4de4d814c2810b8e331ce5575c3d1cd60f416339d6100c545e694637ec200a4806b1b6487c52eaebb49090bcd077aacefb4387493e35fb62a35bs",
+                "creation-date": datetime(2024, 7, 2, 21, 0, 0),
+                "modification-date": None,
             }
         },
     )

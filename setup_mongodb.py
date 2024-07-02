@@ -17,6 +17,8 @@ from pymongo import MongoClient, IndexModel, ASCENDING, DESCENDING
 import gridfs
 
 
+SETUPFILE = "/mongodbissetup"
+
 # add schema validation
 
 uid_salt = os.getenv("USERS_UID_SALT", "horrible salt")
@@ -33,6 +35,11 @@ api_password = os.getenv("MONGO_API_PASSWORD")
 gui_username = os.getenv("MONGO_GUI_USER", "nfc-gui-user")
 gui_password = os.getenv("MONGO_GUI_PASSWORD")
 
+users_passwords_env = [
+    ["MONGO_HW_USER", "MONGO_HW_PASSWORD"],
+    ["MONGO_API_USER", "MONGO_API_PASSWORD"],
+    ["MONGO_GUI_USER", "MONGO_GUI_PASSWORD"],
+]
 
 new_indexes = {
     "users": [
@@ -44,10 +51,22 @@ new_indexes = {
     "plates": [IndexModel([("plate-number", ASCENDING)], unique=True)],
     "fs.files": [],
     "fs.chunks": [],
+    "new-users": [],
+    "new-samples": [],
+    "new-plates": [],
 }
 
 
 def create_necessary_indexes(ndb, nindexes):
+    """Function to create new indexes in a database
+
+    Args:
+        ndb (MongoDB database): MongoDB database of pymongo
+        nindexes (dict): Dictionary of new index and properties, see new_indexes
+
+    Returns:
+        list: return index informations of existing indexes after creating new ones
+    """
     existing_cols = ndb.list_collection_names()
 
     for col in nindexes.keys():
@@ -62,13 +81,19 @@ def create_necessary_indexes(ndb, nindexes):
     return indexes
 
 
-if setup_mongodb:
+if setup_mongodb and os.path.isfile(SETUPFILE):
     if hw_password is None:
         hw_password = secrets.token_urlsafe(64)
     if api_password is None:
         api_password = secrets.token_urlsafe(64)
     if gui_password is None:
         gui_password = secrets.token_urlsafe(64)
+
+    users_passwords = [
+        [hw_username, hw_username, "MONGO_HW_USER", "MONGO_HW_PASSWORD"],
+        [api_username, api_password, "MONGO_API_USER", "MONGO_API_PASSWORD"],
+        [gui_username, gui_username, "MONGO_GUI_USER", "MONGO_GUI_PASSWORD"],
+    ]
 
     client = MongoClient(
         f"mongodb://{admin_username}:{admin_password}@{mongo_host}:{mongo_port}/"
@@ -77,41 +102,18 @@ if setup_mongodb:
     nfc_tracking_db = client["nfc-tracking"]
     gfs = gridfs.GridFS(nfc_tracking_db)
 
-    nfc_tracking_db.command(
-        "createUser",
-        hw_username,
-        pwd=hw_password,
-        roles=[
-            {"role": "readWrite", "db": "nfc-tracking"},
-        ],
-    )
+    for u_pw in users_passwords:
+        nfc_tracking_db.command(
+            "createUser",
+            u_pw[0],
+            u_pw[1],
+            roles=[
+                {"role": "readWrite", "db": "nfc-tracking"},
+            ],
+        )
 
-    os.environ["MONGO_HW_USER"] = hw_username
-    os.environ["MONGO_HW_PASSWORD"] = hw_password
-
-    nfc_tracking_db.command(
-        "createUser",
-        api_username,
-        pwd=api_password,
-        roles=[
-            {"role": "readWrite", "db": "nfc-tracking"},
-        ],
-    )
-
-    os.environ["MONGO_API_USER"] = api_username
-    os.environ["MONGO_API_PASSWORD"] = api_password
-
-    nfc_tracking_db.command(
-        "createUser",
-        gui_username,
-        pwd=gui_password,
-        roles=[
-            {"role": "readWrite", "db": "nfc-tracking"},
-        ],
-    )
-
-    os.environ["MONGO_GUI_USER"] = gui_username
-    os.environ["MONGO_GUI_PASSWORD"] = gui_password
+        os.environ[u_pw[2]] = u_pw[0]
+        os.environ[u_pw[3]] = u_pw[1]
 
     print(
         f"Mongodb hardware user: {hw_username}\nMongodb hardware password: {hw_password}\n"
@@ -120,6 +122,7 @@ if setup_mongodb:
     print(f"Mongodb GUI user: {gui_username}\nMongodb GUI password: {gui_password}\n")
 
     del (
+        users_passwords,
         admin_username,
         admin_password,
         hw_username,
@@ -136,32 +139,15 @@ if setup_mongodb:
         nfc_example_db = client["nfc-example"]
         create_necessary_indexes(nfc_example_db, new_indexes)
 
-        nfc_example_db.command(
-            "createUser",
-            os.environ["MONGO_HW_USER"],
-            pwd=os.environ["MONGO_HW_PASSWORD"],
-            roles=[
-                {"role": "readWrite", "db": "nfc-example"},
-            ],
-        )
-
-        nfc_example_db.command(
-            "createUser",
-            os.environ["MONGO_API_USER"],
-            pwd=os.environ["MONGO_API_PASSWORD"],
-            roles=[
-                {"role": "readWrite", "db": "nfc-example"},
-            ],
-        )
-
-        nfc_example_db.command(
-            "createUser",
-            os.environ["MONGO_GUI_USER"],
-            pwd=os.environ["MONGO_GUI_PASSWORD"],
-            roles=[
-                {"role": "readWrite", "db": "nfc-example"},
-            ],
-        )
+        for u_pw_env in users_passwords_env:
+            nfc_example_db.command(
+                "createUser",
+                os.environ[u_pw_env[0]],
+                pwd=os.environ[u_pw_env[1]],
+                roles=[
+                    {"role": "readWrite", "db": "nfc-example"},
+                ],
+            )
 
         gfs = gridfs.GridFS(nfc_example_db)
 
@@ -175,7 +161,7 @@ if setup_mongodb:
         EXAMPLE_SAMPLENUMBER = 1
         EXAMPLE_PLATENUMBER = 1
         EXAMPLE_DOCUMENTID = None
-        example_transfertime = datetime.now(tz=timezone.utc)
+        EXAMPLE_TIME = datetime.now(tz=timezone.utc)
 
         EXAMPLE_DOCUMENTID = gfs.put(b"test gfs data")
 
@@ -186,10 +172,13 @@ if setup_mongodb:
                     "name": {"first": "Eugene", "last": "Wigner"},
                     "email": "eugene.wigner@physik.tu-berlin.de",
                     "userid": hashlib.sha512(example_b_userid).hexdigest(),
+                    "creation-date": EXAMPLE_TIME - timedelta(weeks=10),
+                    "modification-date": None,
                 }
             )
             .inserted_id
         )
+
         EXAMPLE_LOCATIONID = (
             nfc_example_db["locations"]
             .insert_one(
@@ -204,30 +193,42 @@ if setup_mongodb:
                         },
                         "room": "EW921",
                     },
+                    "creation-date": EXAMPLE_TIME - timedelta(weeks=10),
+                    "modification-date": EXAMPLE_TIME,
                 }
             )
             .inserted_id
         )
 
-        nfc_example_db["samples"].insert_one(
+        EXAMPLE_SAMPLEID = nfc_example_db["samples"].insert_one(
             {
                 "sample-number": EXAMPLE_SAMPLENUMBER,
-                "responsible-user": EXAMPLE_USERID,
+                "owners": [{"date": EXAMPLE_TIME, "user": EXAMPLE_USERID}],
                 "information": {
+                    "origin": EXAMPLE_LOCATIONID,
                     "material": "GaN",
                     "orientation": "0001",
                     "doping": "Mg",
                     "growth": "MOVPE",
+                    "note": "No notes",
+                    "damaged": {
+                        "date": EXAMPLE_TIME - timedelta(days=1),
+                        "note": "broken while cleaning",
+                    },
+                    "lost": {
+                        "date": EXAMPLE_TIME - timedelta(hours=1),
+                        "note": "lost behind the couch",
+                    },
                 },
                 "locations": [
                     {
-                        "date": datetime.now(tz=timezone.utc) - timedelta(days=5),
+                        "date": EXAMPLE_TIME - timedelta(days=5),
                         "location": EXAMPLE_LOCATIONID,
                         "plate-number": None,
                         "user": EXAMPLE_USERID,
                     },
                     {
-                        "date": example_transfertime,
+                        "date": EXAMPLE_TIME,
                         "location": EXAMPLE_LOCATIONID,
                         "plate-number": EXAMPLE_PLATENUMBER,
                         "user": EXAMPLE_USERID,
@@ -235,32 +236,65 @@ if setup_mongodb:
                 ],
                 "images": [EXAMPLE_DOCUMENTID],
                 "files": [EXAMPLE_DOCUMENTID],
+                "creation-date": EXAMPLE_TIME - timedelta(weeks=5),
             }
         )
-        nfc_example_db["plates"].insert_one(
+
+        EXAMPLE_PLATEID = nfc_example_db["plates"].insert_one(
             {
                 "plate-number": EXAMPLE_PLATENUMBER,
                 "modifications": [
                     {
-                        "date": datetime.now(tz=timezone.utc) - timedelta(days=2),
+                        "date": EXAMPLE_TIME - timedelta(days=2),
                         "user": EXAMPLE_USERID,
                         "samples": [],
                     },
                     {
-                        "date": example_transfertime,
+                        "date": EXAMPLE_TIME,
                         "user": EXAMPLE_USERID,
                         "samples": [EXAMPLE_SAMPLENUMBER],
                     },
                 ],
                 "locations": [
                     {
-                        "date": datetime.now(tz=timezone.utc) - timedelta(days=2),
+                        "date": EXAMPLE_TIME - timedelta(days=2),
                         "user": EXAMPLE_USERID,
                         "location": EXAMPLE_LOCATIONID,
                     }
                 ],
                 "images": [EXAMPLE_DOCUMENTID],
+                "creation-date": EXAMPLE_TIME - timedelta(days=2),
             }
         )
+
+        nfc_example_db["new-users"].insert_one(
+            {
+                "user_id": EXAMPLE_USERID,
+                "uuid": EXAMPLE_RANDOM_ID,
+                "creation-date": EXAMPLE_TIME - timedelta(weeks=10),
+            }
+        )
+
+        nfc_example_db["new-samples"].insert_one(
+            {
+                "sample_id": EXAMPLE_SAMPLEID,
+                "sample-number": EXAMPLE_SAMPLENUMBER,
+                "material": "GaN",
+                "orientation": "0001",
+                "origin": "example laboratory",
+                "creation-date": EXAMPLE_TIME - timedelta(weeks=5),
+            }
+        )
+
+        nfc_example_db["new-plates"].insert_one(
+            {
+                "plate_id": EXAMPLE_PLATEID,
+                "plate-number": EXAMPLE_PLATENUMBER,
+                "creation-date": EXAMPLE_TIME - timedelta(days=2),
+            }
+        )
+
+    with open(SETUPFILE, "w", encoding="utf-8") as empty_file:
+        pass
 
     client.close()
