@@ -2,7 +2,7 @@
 
 NFC sample tracking using NTAG 21X NFC tags
 
-![pylint](https://img.shields.io/badge/PyLint-9.32-yellow?logo=python&logoColor=white)
+![pylint](https://img.shields.io/badge/PyLint-9.35-yellow?logo=python&logoColor=white)
 
 
 # Architecture and processes
