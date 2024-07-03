@@ -15,15 +15,15 @@ import urllib.parse
 from datetime import datetime, timezone, timedelta
 from pymongo import MongoClient, IndexModel, ASCENDING, DESCENDING
 import gridfs
+from libraries.helpers import getenvbool
 
-
-SETUPFILE = "/mongodbissetup"
+SETUPFILE = "/nstdata/mongodbissetup"
 
 # add schema validation
 
 uid_salt = os.getenv("USERS_UID_SALT", "horrible salt")
-setup_mongodb = bool(os.getenv("MONGO_SETUP", "False"))
-setup_example_mongodb = bool(os.getenv("MONGO_SETUP_EXAMPLE", "False"))
+setup_mongodb = getenvbool("MONGO_SETUP", False)
+setup_example_mongodb = getenvbool("MONGO_SETUP_EXAMPLE", False)
 mongo_host = os.getenv("MONGO_HOST", "localhost")
 mongo_port = os.getenv("MONGO_PORT", "27017")
 admin_username = urllib.parse.quote_plus(os.getenv("MONGO_ADMIN_USER", "admin"))
@@ -81,7 +81,7 @@ def create_necessary_indexes(ndb, nindexes):
     return indexes
 
 
-if setup_mongodb and os.path.isfile(SETUPFILE):
+if setup_mongodb and not os.path.isfile(SETUPFILE):
     if hw_password is None:
         hw_password = secrets.token_urlsafe(64)
     if api_password is None:
@@ -90,9 +90,9 @@ if setup_mongodb and os.path.isfile(SETUPFILE):
         gui_password = secrets.token_urlsafe(64)
 
     users_passwords = [
-        [hw_username, hw_username, "MONGO_HW_USER", "MONGO_HW_PASSWORD"],
+        [hw_username, hw_password, "MONGO_HW_USER", "MONGO_HW_PASSWORD"],
         [api_username, api_password, "MONGO_API_USER", "MONGO_API_PASSWORD"],
-        [gui_username, gui_username, "MONGO_GUI_USER", "MONGO_GUI_PASSWORD"],
+        [gui_username, gui_password, "MONGO_GUI_USER", "MONGO_GUI_PASSWORD"],
     ]
 
     client = MongoClient(
@@ -106,7 +106,7 @@ if setup_mongodb and os.path.isfile(SETUPFILE):
         nfc_tracking_db.command(
             "createUser",
             u_pw[0],
-            u_pw[1],
+            pwd=u_pw[1],
             roles=[
                 {"role": "readWrite", "db": "nfc-tracking"},
             ],
@@ -200,71 +200,79 @@ if setup_mongodb and os.path.isfile(SETUPFILE):
             .inserted_id
         )
 
-        EXAMPLE_SAMPLEID = nfc_example_db["samples"].insert_one(
-            {
-                "sample-number": EXAMPLE_SAMPLENUMBER,
-                "owners": [{"date": EXAMPLE_TIME, "user": EXAMPLE_USERID}],
-                "information": {
-                    "origin": EXAMPLE_LOCATIONID,
-                    "material": "GaN",
-                    "orientation": "0001",
-                    "doping": "Mg",
-                    "growth": "MOVPE",
-                    "note": "No notes",
-                    "damaged": {
-                        "date": EXAMPLE_TIME - timedelta(days=1),
-                        "note": "broken while cleaning",
+        EXAMPLE_SAMPLEID = (
+            nfc_example_db["samples"]
+            .insert_one(
+                {
+                    "sample-number": EXAMPLE_SAMPLENUMBER,
+                    "owners": [{"date": EXAMPLE_TIME, "user": EXAMPLE_USERID}],
+                    "information": {
+                        "origin": EXAMPLE_LOCATIONID,
+                        "material": "GaN",
+                        "orientation": "0001",
+                        "doping": "Mg",
+                        "growth": "MOVPE",
+                        "note": "No notes",
+                        "damaged": {
+                            "date": EXAMPLE_TIME - timedelta(days=1),
+                            "note": "broken while cleaning",
+                        },
+                        "lost": {
+                            "date": EXAMPLE_TIME - timedelta(hours=1),
+                            "note": "lost behind the couch",
+                        },
                     },
-                    "lost": {
-                        "date": EXAMPLE_TIME - timedelta(hours=1),
-                        "note": "lost behind the couch",
-                    },
-                },
-                "locations": [
-                    {
-                        "date": EXAMPLE_TIME - timedelta(days=5),
-                        "location": EXAMPLE_LOCATIONID,
-                        "plate-number": None,
-                        "user": EXAMPLE_USERID,
-                    },
-                    {
-                        "date": EXAMPLE_TIME,
-                        "location": EXAMPLE_LOCATIONID,
-                        "plate-number": EXAMPLE_PLATENUMBER,
-                        "user": EXAMPLE_USERID,
-                    },
-                ],
-                "images": [EXAMPLE_DOCUMENTID],
-                "files": [EXAMPLE_DOCUMENTID],
-                "creation-date": EXAMPLE_TIME - timedelta(weeks=5),
-            }
+                    "locations": [
+                        {
+                            "date": EXAMPLE_TIME - timedelta(days=5),
+                            "location": EXAMPLE_LOCATIONID,
+                            "plate-number": None,
+                            "user": EXAMPLE_USERID,
+                        },
+                        {
+                            "date": EXAMPLE_TIME,
+                            "location": EXAMPLE_LOCATIONID,
+                            "plate-number": EXAMPLE_PLATENUMBER,
+                            "user": EXAMPLE_USERID,
+                        },
+                    ],
+                    "images": [EXAMPLE_DOCUMENTID],
+                    "files": [EXAMPLE_DOCUMENTID],
+                    "creation-date": EXAMPLE_TIME - timedelta(weeks=5),
+                }
+            )
+            .inserted_id
         )
 
-        EXAMPLE_PLATEID = nfc_example_db["plates"].insert_one(
-            {
-                "plate-number": EXAMPLE_PLATENUMBER,
-                "modifications": [
-                    {
-                        "date": EXAMPLE_TIME - timedelta(days=2),
-                        "user": EXAMPLE_USERID,
-                        "samples": [],
-                    },
-                    {
-                        "date": EXAMPLE_TIME,
-                        "user": EXAMPLE_USERID,
-                        "samples": [EXAMPLE_SAMPLENUMBER],
-                    },
-                ],
-                "locations": [
-                    {
-                        "date": EXAMPLE_TIME - timedelta(days=2),
-                        "user": EXAMPLE_USERID,
-                        "location": EXAMPLE_LOCATIONID,
-                    }
-                ],
-                "images": [EXAMPLE_DOCUMENTID],
-                "creation-date": EXAMPLE_TIME - timedelta(days=2),
-            }
+        EXAMPLE_PLATEID = (
+            nfc_example_db["plates"]
+            .insert_one(
+                {
+                    "plate-number": EXAMPLE_PLATENUMBER,
+                    "modifications": [
+                        {
+                            "date": EXAMPLE_TIME - timedelta(days=2),
+                            "user": EXAMPLE_USERID,
+                            "samples": [],
+                        },
+                        {
+                            "date": EXAMPLE_TIME,
+                            "user": EXAMPLE_USERID,
+                            "samples": [EXAMPLE_SAMPLENUMBER],
+                        },
+                    ],
+                    "locations": [
+                        {
+                            "date": EXAMPLE_TIME - timedelta(days=2),
+                            "user": EXAMPLE_USERID,
+                            "location": EXAMPLE_LOCATIONID,
+                        }
+                    ],
+                    "images": [EXAMPLE_DOCUMENTID],
+                    "creation-date": EXAMPLE_TIME - timedelta(days=2),
+                }
+            )
+            .inserted_id
         )
 
         nfc_example_db["new-users"].insert_one(

@@ -7,7 +7,7 @@ Created on Monday, 2024-06-17 22:02
 @license: AGPL v3
 @links: https://github.com/lucasmchoi
 """
-import sys
+# import sys
 import os
 from subprocess import (
     check_output,
@@ -19,6 +19,7 @@ from constructors.layout import (
     getgloballayout,
 )
 from callbacks import callback
+from libraries.helpers import getenvbool
 
 
 uid_salt = os.getenv("USERS_UID_SALT", "horrible salt")
@@ -27,11 +28,8 @@ mongo_port = os.getenv("MONGO_PORT", "27017")
 gui_username = os.getenv("MONGO_GUI_USER", "nfc-gui-user")
 gui_password = os.getenv("MONGO_GUI_PASSWORD")
 database = os.getenv("MONGO_DATABASE", "nfc-tracking")
-
-#############################################################
-database = "nfc-example"
-gui_password = "mP5hWvlECX_14_dHPq7csFp3Pf4cFgH7idC6SVv3_yiaTYCLupN75mev8B2M87E-lUwhiKIjN9x0N8F14D86Lg"
-#############################################################
+GUI_ADMIN_PORT = 8083
+GUI_ADMIN_DEBUG = getenvbool("GUI_ADMIN_DEBUG", False)
 
 client = MongoClient(
     f"mongodb://{gui_username}:{gui_password}@{mongo_host}:{mongo_port}/{database}"
@@ -40,20 +38,22 @@ client = MongoClient(
 db = client[database]
 
 # case for testing
-if len(sys.argv) > 2 and sys.argv[2] == "testing":
-    GITCWD = None
-    URLBASEPATH = None
-    # __tmpdir__ = None
-    # pathnameadd = ""
-    # pathnamecut = 0
-    DEBUGB = True
-else:
-    GITCWD = "/raid/syncthing/git-webhook/nfc-sample-tracker/"
-    URLBASEPATH = "/nst/"
-    # __tmpdir__ = "/raid/messdaten-temp/"  # tmpdir for import tempfile if necessary
-    # pathnameadd = "/raid/messdaten/"
-    # pathnamecut = len(urlbasepath)
-    DEBUGB = False
+GITCWD = None
+URLBASEPATH = None
+# if len(sys.argv) > 2 and sys.argv[2] == "testing":
+#     GITCWD = None
+#     URLBASEPATH = None
+#     # __tmpdir__ = None
+#     # pathnameadd = ""
+#     # pathnamecut = 0
+#     DEBUGB = True
+# else:
+#     GITCWD = "/raid/syncthing/git-webhook/nfc-sample-tracker/"
+#     URLBASEPATH = "/nst/"
+#     # __tmpdir__ = "/raid/messdaten-temp/"  # tmpdir for import tempfile if necessary
+#     # pathnameadd = "/raid/messdaten/"
+#     # pathnamecut = len(urlbasepath)
+#     DEBUGB = False
 
 # get version and short hash
 # __version__ = check_output(
@@ -94,6 +94,15 @@ callback.getcallbacks(app, db)
     prevent_initial_call=True,
 )
 def update_url_to_memory(pathname, memory):
+    """On page refresh update the pathname in memory as fpath and add the current version hash
+
+    Args:
+        pathname (str): path of the current page
+        memory (dict): memory dict
+
+    Returns:
+        dict: updated memory
+    """
     # add path for teraaxel
     memory["fpath"] = pathname
     memory["version"] = {"hash": __shorthash__}
@@ -102,4 +111,4 @@ def update_url_to_memory(pathname, memory):
 
 if __name__ == "__main__":
     # adds debugging mode when testing
-    app.run(debug=DEBUGB, port=int(sys.argv[1]))
+    app.run(debug=GUI_ADMIN_DEBUG, host='0.0.0.0', port=int(GUI_ADMIN_PORT))
