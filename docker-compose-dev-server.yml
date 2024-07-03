@@ -1,0 +1,44 @@
+# Run using docker compose --env-file ./docker/env_files/nfc-dev-server.env -f docker-compose-dev-server.yml up
+services:
+  mongo:
+    container_name: mongodb_nst
+    image: mongo:7.0
+    restart: always
+    env_file:
+      - path: ./docker/env_files/nfc-dev-server.env
+        required: true
+    volumes:
+      - mongodbdata:/data/db
+
+  mongo-express:
+    container_name: mongo-express_nst
+    image: mongo-express:1
+    restart: always
+    env_file:
+      - path: ./docker/env_files/nfc-dev-server.env
+        required: true
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo
+
+  nfc:
+    container_name: nfc-sample-tracker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - path: ./docker/env_files/nfc-dev-server.env
+        required: true
+    ports:
+      - 8083:8083
+    depends_on:
+      - mongo
+    volumes:
+      - nstdata:/nstdata
+      - .:/nfc-sample-tracker:ro
+
+volumes:
+  mongodbdata:
+  nstdata:

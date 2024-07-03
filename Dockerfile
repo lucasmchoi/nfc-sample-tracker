@@ -1,6 +1,6 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends dirmngr gnupg
+RUN apt-get update && apt-get install -y --no-install-recommends dirmngr gnupg git
 
 RUN mkdir /root/.gnupg/ && gpg --no-default-keyring --keyring /usr/share/keyrings/raspberrypi-archive-keyring.gpg --keyserver keyserver.ubuntu.com --recv-keys 82B129927FA3303E
 
@@ -14,10 +14,14 @@ RUN apt-get clean && apt-get autoremove && rm -rf /var/cache/apt/archives/* && r
 
 WORKDIR /nfc-sample-tracker
 
-COPY requirements.txt .
+COPY . .
+
+COPY ./docker/entrypoint.sh /
 
 RUN python3 -m venv --system-site-packages /.venv
 
 RUN /.venv/bin/pip install --no-cache-dir -r requirements.txt
 
-CMD ["/.venv/bin/python3", "-u", "./main.py"]
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

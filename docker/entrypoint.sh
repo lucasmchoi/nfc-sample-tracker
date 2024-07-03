@@ -1,12 +1,21 @@
 #!/bin/bash
 
 if [ "$HARDWARE" == "True" ]; then
-    /.env/bin/python3 -u /nfc-sample-tracker/main_hardware.py &
+    /.venv/bin/python3 -u /nfc-sample-tracker/main_hardware.py &
+    
 fi
 
 if [ "$SERVER" == "True" ]; then
-    /.env/bin/python3 -u /nfc-sample-tracker/setup_mongodb.py
-    /.env/bin/python3 -u /nfc-sample-tracker/main_api.py &
-    /.env/bin/python3 -u /nfc-sample-tracker/main_gui.py &
-    /.env/bin/python3 -u /nfc-sample-tracker/main_gui_admin.py &
+    /.venv/bin/python3 -u /nfc-sample-tracker/setup_mongodb.py
+    if [ "$STOP_API" != "True" ]; then
+        /.venv/bin/python3 -u /nfc-sample-tracker/main_api.py &
+    fi
+    if [ "$STOP_GUI_MAIN" != "True" ]; then
+        /.venv/bin/python3 -u /nfc-sample-tracker/main_gui.py &
+    fi
+    if [ "$STOP_GUI_ADMIN" != "True" ]; then
+        /.venv/bin/python3 -u /nfc-sample-tracker/main_gui_admin.py &
+    fi
 fi
+
+wait
