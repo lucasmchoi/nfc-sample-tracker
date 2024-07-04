@@ -9,6 +9,12 @@ services:
         required: true
     volumes:
       - mongodbdata:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh "mongodb://localhost:27017" --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   mongo-express:
     container_name: mongo-express_nst
@@ -20,7 +26,8 @@ services:
     ports:
       - 8081:8081
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
 
   nfc:
     container_name: nfc-sample-tracker
@@ -34,7 +41,8 @@ services:
     ports:
       - 8083:8083
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     volumes:
       - nstdata:/nstdata
       - .:/nfc-sample-tracker:ro

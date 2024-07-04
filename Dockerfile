@@ -1,6 +1,6 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends dirmngr gnupg git
+RUN apt-get update && apt-get install -y --no-install-recommends dirmngr gnupg git curl
 
 RUN mkdir /root/.gnupg/ && gpg --no-default-keyring --keyring /usr/share/keyrings/raspberrypi-archive-keyring.gpg --keyserver keyserver.ubuntu.com --recv-keys 82B129927FA3303E
 
@@ -18,10 +18,16 @@ COPY . .
 
 COPY ./docker/entrypoint.sh /
 
+COPY ./docker/healthchecks.sh /
+
 RUN python3 -m venv --system-site-packages /.venv
 
 RUN /.venv/bin/pip install --no-cache-dir -r requirements.txt
 
 RUN chmod +x /entrypoint.sh
+
+RUN chmod +x /healthchecks.sh
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 CMD [ "/healthchecks.sh" ]
 
 ENTRYPOINT ["/entrypoint.sh"]
