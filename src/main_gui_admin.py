@@ -73,6 +73,7 @@ app = Dash(
     serve_locally=True,
 )
 
+server = app.server
 
 # load app layout and all callbacks for specific measurement data files
 getgloballayout(app, __shorthash__)
