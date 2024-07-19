@@ -16,6 +16,8 @@ WORKDIR /nfc-sample-tracker
 
 COPY ./src .
 
+COPY requirements.txt .
+
 COPY ./docker/entrypoint.sh /
 
 COPY ./docker/healthchecks.sh /
