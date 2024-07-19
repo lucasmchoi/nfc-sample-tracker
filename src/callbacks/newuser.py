@@ -13,7 +13,7 @@ import uuid
 from dash import Output, Input, State, html
 import dash_bootstrap_components as dbc
 from pydantic import ValidationError
-from constructors.datatypes import UserModel
+from constructors.models import UserModel
 
 
 def get_newuser_callbacks(app, db):

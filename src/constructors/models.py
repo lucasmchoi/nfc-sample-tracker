@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sunday, 2024-06-09 08:47
+Created on Friday, 2024-07-19 22:47
 
 @author: Luca Sung-Min Choi (gitcontact@email.lucachoi.de)
 @copyright: Copyright © 2024 Luca Sung-Min Choi
 @license: AGPL v3
 @links: https://github.com/lucasmchoi
 """
+
+import os
+import urllib.parse
 from datetime import datetime
 from typing import Optional, List, Union
 from typing_extensions import Annotated
@@ -14,8 +17,40 @@ from pydantic import ConfigDict, BaseModel, Field, EmailStr
 from pydantic.functional_validators import BeforeValidator
 
 
-# Represents an ObjectId field in the database.
-# It will be represented as a `str` on the model so that it can be serialized to JSON.
+class Environment(BaseModel):
+    """
+    Environment variables
+    """
+
+    mongo_host: str = Field(default=os.getenv("MONGO_HOST", "localhost"))
+    mongo_port: int = Field(default=os.getenv("MONGO_PORT", "27017"))
+    mongo_db: str = Field(default=os.getenv("MONGO_DATABASE", "nfc-tracking"))
+
+    admin_user: str = Field(
+        default=urllib.parse.quote_plus(os.getenv("MONGO_ADMIN_USER", "admin"))
+    )
+    admin_pass: str = Field(
+        default=urllib.parse.quote_plus(os.getenv("MONGO_ADMIN_PASSWORD", "None"))
+    )
+
+    mongo_setup: bool = Field(default=os.getenv("MONGO_SETUP", "False"))
+    mongo_setup_example: bool = Field(default=os.getenv("MONGO_SETUP_EXAMPLE", "False"))
+
+    gui_user: str = Field(default=os.getenv("MONGO_GUI_USER", "nfc-gui-user"))
+    gui_pass: str = Field(default=os.getenv("MONGO_GUI_PASSWORD"))
+    gui_port: int = Field(default=os.getenv("GUI_ADMIN_PORT", "8082"))
+    gui_debug: bool = Field(default=os.getenv("GUI_DEBUG", "False"))
+    gui_admin_port: int = Field(default=os.getenv("GUI_ADMIN_PORT", "8083"))
+
+    api_user: str = Field(default=os.getenv("MONGO_API_USER", "nfc-api-user"))
+    api_pass: str = Field(default=os.getenv("MONGO_API_PASSWORD"))
+
+    hw_user: str = Field(default=os.getenv("MONGO_HW_USER", "nfc-hardware-user"))
+    hw_pass: str = Field(default=os.getenv("MONGO_HW_PASSWORD"))
+
+    uid_salt: str = Field(default=os.getenv("USERS_UID_SALT", "horrible salt"))
+
+
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 

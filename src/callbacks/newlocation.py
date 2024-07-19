@@ -10,7 +10,7 @@ Created on Saturday, 2024-06-22 10:43
 from dash import Output, Input, State, html
 import dash_bootstrap_components as dbc
 from pydantic import ValidationError
-from constructors.datatypes import LocationModel
+from constructors.models import LocationModel
 
 
 def get_newlocation_callbacks(app, db):

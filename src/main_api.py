@@ -11,7 +11,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from bson import ObjectId
 import motor.motor_asyncio
-from constructors.datatypes import (
+from constructors.models import (
     LocationModel,
     UserModel,
     LocationCollection,
