@@ -14,7 +14,7 @@ RUN apt-get clean && apt-get autoremove && rm -rf /var/cache/apt/archives/* && r
 
 WORKDIR /nfc-sample-tracker
 
-COPY . .
+COPY ./src .
 
 COPY ./docker/entrypoint.sh /
 
