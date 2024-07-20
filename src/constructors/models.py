@@ -15,6 +15,7 @@ from typing import Optional, List, Union
 from typing_extensions import Annotated
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 from pydantic.functional_validators import BeforeValidator
+from constructors.helpers import get_current_date
 
 
 class Environment(BaseModel):
@@ -82,29 +83,12 @@ class LocationModel(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
     location: Location
-    creation_date: datetime = Field(alias="creation-date", default=None)
+    creation_date: datetime = Field(alias="creation-date", default=get_current_date())
     modification_date: Union[datetime, None] = Field(
-        alias="modification-date", default=None
+        alias="modification-date", default=get_current_date()
     )
     model_config = ConfigDict(
         populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "name": "example laboratory",
-                "location": {
-                    "address": {
-                        "street": "Hardenbergstraße 36",
-                        "zip": "10623",
-                        "city": "Berlin",
-                        "country": "Germany",
-                    },
-                    "room": "EW921",
-                },
-                "creation-date": datetime(2024, 7, 2, 21, 0, 0),
-                "modification-date": None,
-            }
-        },
     )
 
 
@@ -134,22 +118,12 @@ class UserModel(BaseModel):
     name: Name
     email: EmailStr
     userid: str
-    creation_date: datetime = Field(alias="creation-date", default=None)
+    creation_date: datetime = Field(alias="creation-date", default=get_current_date())
     modification_date: Union[datetime, None] = Field(
-        alias="modification-date", default=None
+        alias="modification-date", default=get_current_date()
     )
     model_config = ConfigDict(
         populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "name": {"first": "Eugene", "last": "Wigner"},
-                "email": "eugene.wigner@physik.tu-berlin.de",
-                "userid": "d8602a8faec4de4d814c2810b8e331ce5575c3d1cd60f416339d6100c545e694637ec200a4806b1b6487c52eaebb49090bcd077aacefb4387493e35fb62a35bs",
-                "creation-date": datetime(2024, 7, 2, 21, 0, 0),
-                "modification-date": None,
-            }
-        },
     )
 
 
@@ -159,3 +133,174 @@ class UserCollection(BaseModel):
     """
 
     users: List[UserModel]
+
+
+class PlateLocation(BaseModel):
+    """
+    Container for a single plate location record
+    """
+
+    date: datetime = Field(default=get_current_date())
+    user: PyObjectId
+    location: PyObjectId
+
+
+class PlateModification(BaseModel):
+    """
+    Container for a single plate modification record
+    """
+
+    date: datetime = Field(default=get_current_date())
+    user: PyObjectId
+    samples: List[int]
+
+
+class PlateModel(BaseModel):
+    """
+    Container for a single plate record
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    plate_number: int = Field(alias="plate-number", default=None)
+    modifications: List[PlateModification] = Field(default=[])
+    locations: List[PlateLocation] = Field(default=[])
+    images: List[PyObjectId] = Field(default=[])
+    creation_date: datetime = Field(alias="creation-date", default=get_current_date())
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+
+class PlateCollection(BaseModel):
+    """
+    Model for list of PlateModels
+    """
+
+    plates: List[PlateModel]
+
+
+class SampleLocation(BaseModel):
+    """
+    Container for a single sample location record
+    """
+
+    date: datetime = Field(default=get_current_date())
+    location: PyObjectId
+    plate_number: PyObjectId = Field(alias="plate-number")
+    user: PyObjectId
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+
+class SampleLost(BaseModel):
+    """
+    Container for a single sample lost record
+    """
+
+    date: Union[datetime, None] = Field(default=get_current_date())
+    note: Union[str, None]
+
+
+class SampleDamage(BaseModel):
+    """
+    Container for a single sample damage record
+    """
+
+    date: Union[datetime, None] = Field(default=get_current_date())
+    note: Union[str, None]
+
+
+class SampleInformationModel(BaseModel):
+    """
+    Container for a single sample information record
+    """
+
+    origin: PyObjectId
+    material: str
+    orientation: str
+    doping: str
+    growth: str
+    note: Union[str, None] = Field(default=None)
+    damaged: SampleDamage = Field(default=SampleDamage(date=None, note=None))
+    lost: SampleLost = Field(default=SampleLost(date=None, note=None))
+
+
+class OwnerModel(BaseModel):
+    """
+    Container for a single owner record
+    """
+
+    date: datetime = Field(default=get_current_date())
+    user: PyObjectId
+
+
+class SampleModel(BaseModel):
+    """
+    Container for a single sample record
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    sample_number: int = Field(alias="sample-number", default=None)
+    owners: List[OwnerModel]
+    information: SampleInformationModel
+    locations: List[SampleLocation] = Field(default=[])
+    images: List[PyObjectId] = Field(default=[])
+    files: List[PyObjectId] = Field(default=[])
+    creation_date: datetime = Field(alias="creation-date", default=get_current_date())
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+
+class SampleCollection(BaseModel):
+    """
+    Model for list of SampleModels
+    """
+
+    samples: List[SampleModel]
+
+
+class NewPlate(BaseModel):
+    """
+    Container for a single new-plates record
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    plate_id: PyObjectId
+    plate_number: int = Field(alias="plate-number", default=None)
+    creation_date: datetime = Field(alias="creation-date", default=get_current_date())
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+
+class NewUser(BaseModel):
+    """
+    Container for a single new-users record
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    user_id: PyObjectId
+    uuid: str
+    creation_date: datetime = Field(alias="creation-date", default=get_current_date())
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+
+class NewSample(BaseModel):
+    """
+    Container for a single new-samples record
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    sample_id: PyObjectId
+    sample_number: int = Field(alias="sample-number", default=None)
+    material: str
+    orientation: str
+    origin: str
+    creation_date: datetime = Field(alias="creation-date", default=get_current_date())
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )

@@ -8,6 +8,8 @@ Created on Tuesday, 2024-06-18 20:01
 @links: https://github.com/lucasmchoi
 """
 
+from datetime import datetime
+
 
 def check_menu_selection(fpath, mode, elen=0):
     defpath = fpath.split("/")
@@ -34,3 +36,10 @@ def check_menu_selection(fpath, mode, elen=0):
                 return False
     else:
         return False
+
+
+def get_current_date() -> datetime:
+    """
+    return the current datetime
+    """
+    return datetime.now().astimezone()
