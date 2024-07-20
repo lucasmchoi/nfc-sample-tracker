@@ -1,10 +1,10 @@
-name: Build dev
+name: Build production
 
 on:
   workflow_dispatch:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+.dev"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 env:
   REGISTRY: ghcr.io
@@ -40,9 +40,9 @@ jobs:
             type=schedule
             type=ref,event=branch
             type=ref,event=pr
-            type=pep440,pattern={{version}}
-            type=pep440,pattern={{major}}.{{minor}}
-            type=pep440,pattern={{major}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             type=sha
           labels: |
             maintainer=lucasmchoi
