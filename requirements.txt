@@ -4,7 +4,7 @@ ndeflib==0.3.3
 # picamera2==0.3.18 # install via apt
 pillow==10.4.0
 pymongo==4.8.0
-fastapi==0.112.0
+fastapi==0.112.1
 motor==3.5.1
 pydantic==2.8.2
 email-validator==2.2.0
