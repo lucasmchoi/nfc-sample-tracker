@@ -10,5 +10,5 @@ pydantic==2.8.2
 email-validator==2.2.0
 typing_extensions==4.12.2
 pandas==2.2.2
-dash==2.17.1
+dash==2.18.0
 dash-bootstrap-components==1.6.0
