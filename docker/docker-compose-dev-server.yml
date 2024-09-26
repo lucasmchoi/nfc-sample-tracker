@@ -1,11 +1,11 @@
-# Run using docker compose --env-file ./docker/env_files/nfc-dev-server.env -f docker-compose-dev-server.yml up
+# Run using docker compose --env-file ./docker/env_files/nfc-dev-server.env -f ./docker/docker-compose-dev-server.yml up --build
 services:
   mongo:
     container_name: mongodb_nst
     image: mongo:7.0
     restart: always
     env_file:
-      - path: ./docker/env_files/nfc-dev-server.env
+      - path: ./env_files/nfc-dev-server.env
         required: true
     volumes:
       - mongodbdata:/data/db
@@ -21,10 +21,10 @@ services:
     image: mongo-express:1
     restart: always
     env_file:
-      - path: ./docker/env_files/nfc-dev-server.env
+      - path: ./env_files/nfc-dev-server.env
         required: true
     ports:
-      - 8081:8081
+      - 127.0.0.1:8081:8081
     depends_on:
       mongo:
         condition: service_healthy
@@ -32,20 +32,20 @@ services:
   nfc:
     container_name: nfc-sample-tracker
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     restart: always
     env_file:
-      - path: ./docker/env_files/nfc-dev-server.env
+      - path: ./env_files/nfc-dev-server.env
         required: true
     ports:
-      - 8083:8083
+      - 127.0.0.1:8083:8083
     depends_on:
       mongo:
         condition: service_healthy
     volumes:
       - nstdata:/nstdata
-      - .:/nfc-sample-tracker:ro
+      - ../src:/nfc-sample-tracker:ro # for debugging
 
 volumes:
   mongodbdata:

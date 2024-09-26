@@ -29,7 +29,7 @@ gui_username = os.getenv("MONGO_GUI_USER", "nfc-gui-user")
 gui_password = os.getenv("MONGO_GUI_PASSWORD")
 database = os.getenv("MONGO_DATABASE", "nfc-tracking")
 GUI_ADMIN_PORT = 8083
-GUI_ADMIN_DEBUG = getenvbool("GUI_ADMIN_DEBUG", False)
+GUI_DEBUG = getenvbool("GUI_DEBUG", False)
 
 client = MongoClient(
     f"mongodb://{gui_username}:{gui_password}@{mongo_host}:{mongo_port}/{database}"
@@ -59,9 +59,10 @@ URLBASEPATH = None
 # __version__ = check_output(
 #     ["git", "describe", "--abbrev=0", "--tags"], text=True, cwd=GITCWD
 # ).strip()
-__shorthash__ = check_output(
-    ["git", "rev-parse", "--short", "HEAD"], text=True, cwd=GITCWD
-).strip()
+__shorthash__ = "1" # TODO
+# __shorthash__ = check_output(
+#     ["git", "rev-parse", "--short", "HEAD"], text=True, cwd=GITCWD
+# ).strip()
 
 # set dash_bootstrap_components stylesheet
 external_stylesheets = [dbc.themes.CERULEAN]
@@ -112,4 +113,4 @@ def update_url_to_memory(pathname, memory):
 
 if __name__ == "__main__":
     # adds debugging mode when testing
-    app.run(debug=GUI_ADMIN_DEBUG, host='0.0.0.0', port=int(GUI_ADMIN_PORT))
+    app.run(debug=GUI_DEBUG, host="0.0.0.0", port=int(GUI_ADMIN_PORT))
